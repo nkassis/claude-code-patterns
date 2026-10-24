@@ -1,0 +1,22 @@
+# Install once per clone: `uvx pre-commit install --hook-type pre-commit --hook-type pre-push`
+# Append security/.pre-commit-config.yaml's `repos:` entries below.
+repos:
+  # Lint and format with the versions in uv.lock, so hooks, Claude and CI agree.
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff
+        entry: uv run ruff check --fix
+        language: system
+        types: [python]
+      - id: black
+        name: black
+        entry: uv run black
+        language: system
+        types: [python]
+      - id: pytest
+        name: pytest
+        entry: uv run pytest -q
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
