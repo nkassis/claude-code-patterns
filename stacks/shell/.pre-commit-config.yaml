@@ -1,0 +1,11 @@
+# Install once per clone: `uvx pre-commit install --hook-type pre-commit --hook-type pre-push`
+# Append security/.pre-commit-config.yaml's `repos:` entries below.
+repos:
+  # Uses the system shellcheck so hooks, Claude and CI run the same binary.
+  - repo: local
+    hooks:
+      - id: shellcheck
+        name: shellcheck
+        entry: shellcheck -x --source-path=SCRIPTDIR
+        language: system
+        types: [shell]
