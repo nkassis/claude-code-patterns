@@ -19,7 +19,6 @@ A project's own `CLAUDE.md` resolves the defaults into decisions at project star
 - Never add a dependency without saying why, and never one that duplicates something already present. (Interactive: ask first. Unattended: record in `decisions.md` and flag.)
 - Never modify database schemas or migrations, or restructure a build system, without explicit approval. Minor `CMakeLists.txt` edits are fine.
 - Package management: UV for Python (never `pip install`), pnpm for JS, cargo for Rust. Tools that need a global install go through `uv tool install` or the platform package manager, never system pip.
-- C++: all SDL3 and ImGui backend calls live in `src/platform/`; game logic never includes an SDL header. Partly enforced: `src/platform/.clang-tidy` is the only place SDL interop checks are relaxed, so the same code elsewhere fails lint.
 - Conventional Commits (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`), one concern per commit, body when the why isn't obvious.
 - PR descriptions give a summary of the plan (what changed and why, matching what was agreed before implementation), list which tests changed and why the behaviour changed, and say explicitly when no tests changed.
 

@@ -8,7 +8,7 @@
 
 - C++{{23}}, CMake + Ninja, `CMAKE_EXPORT_COMPILE_COMMANDS=ON`.
 - EnTT (ECS), SDL3 + Vulkan, Dear ImGui, spdlog. Catch2 for tests.
-- Modules are unit-testable in isolation: no rendering or SDL calls in game logic.
+- Modules are unit-testable in isolation.
 
 ## Guardrails (enforced, not optional)
 
@@ -30,8 +30,8 @@ Fix clang-tidy findings; do not add `NOLINT` without a comment saying why.
 ## Rules
 
 - Deviating from a global default (a library, tool or pattern)? In an interactive session, ask first; unattended, decide. Either way, add one line to `docs/decisions.md` (date, what, why) and flag it in the PR. Read that file before changing a choice it records.
+- All SDL3 and ImGui backend calls live in `src/platform/`; game logic never includes an SDL header. Partly enforced: `src/platform/.clang-tidy` is the only place SDL interop checks are relaxed, so the same code elsewhere fails lint.
 - `docs/` holds guidance for specific areas; read a doc only when your task touches it. SDL3 / platform code: `docs/sdl3.md` (also linked from `src/platform/CLAUDE.md`).
-
 - Small `CMakeLists.txt` edits are fine; flag any significant restructuring for review first.
 - No new third-party library without asking.
 - Explicit types; when `auto` is unavoidable, add `// inferred: …`.
