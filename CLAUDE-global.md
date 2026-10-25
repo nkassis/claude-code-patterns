@@ -24,15 +24,16 @@
 - Structure code so modules are independently importable and testable
 
 ### Frontend
-- **Framework:** Next.js (App Router), React
+- **Framework:** Vite, React, TypeScript (strict)
+- **Routing:** TanStack Router
 - **Styling:** Tailwind CSS
 - **Client state:** Zustand
 - **Server/async state:** TanStack Query
 - **GraphQL:** Apollo Client + graphql-codegen (auto-generate TypeScript types from schema)
-- **Linting:** ESLint (Next.js recommended config)
-- **Logging:** pino (server-side); never use `console.log` in production code
+- **Linting:** ESLint (typescript-eslint strict, react-hooks, jsx-a11y)
+- **Formatter:** Prettier
+- **Logging:** pino for server-side code, if any; never use `console.log` in production code
 - **Testing:** Playwright (E2E), Vitest + React Testing Library (unit/component)
-- Prefer server components by default; use client components only when necessary
 - Use REST for simple CRUD APIs; prefer GraphQL when using frontend apps with complex/nested data needs
 
 ### Rust (Utilities)

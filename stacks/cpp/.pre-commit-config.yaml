@@ -1,0 +1,19 @@
+# Install once per clone: `uvx pre-commit install --hook-type pre-commit --hook-type pre-push`
+# Append security/.pre-commit-config.yaml's `repos:` entries below.
+repos:
+  - repo: local
+    hooks:
+      - id: clang-format
+        name: clang-format
+        entry: clang-format -i
+        language: system
+        types_or: [c, c++]
+      # Needs a configured build dir: `cmake --preset dev` (CMakePresets.json; exports compile_commands.json).
+      - id: clang-tidy
+        name: clang-tidy
+        # Header filters as flags: clang-tidy 20 ignores them in .clang-tidy.
+        entry: clang-tidy -p build --quiet --warnings-as-errors=* --header-filter=(^|.*/)(src|include)/.* --exclude-header-filter=(^|.*/)_deps/.*
+        language: system
+        types_or: [c++]
+        exclude: '\.(h|hh|hpp|hxx)$'
+        stages: [pre-push]

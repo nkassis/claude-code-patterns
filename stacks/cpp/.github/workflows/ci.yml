@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: sudo apt-get update && sudo apt-get install -y ninja-build clang clang-format clang-tidy
+      - name: Format
+        run: git ls-files -z '*.c' '*.cc' '*.cpp' '*.cxx' '*.h' '*.hh' '*.hpp' '*.hxx' | xargs -0 -r clang-format --dry-run -Werror
+      - name: Configure
+        run: cmake --preset dev
+      - name: Build
+        run: cmake --build --preset dev
+      - name: clang-tidy (project sources only, not FetchContent deps)
+        # Header filters as flags: clang-tidy 20 ignores them in .clang-tidy.
+        run: >-
+          run-clang-tidy -p build -quiet -warnings-as-errors='*'
+          -header-filter='(^|.*/)(src|include)/.*' -exclude-header-filter='(^|.*/)_deps/.*'
+          'src/|include/'
+      - name: Test (Catch2 via CTest)
+        run: ctest --preset dev

@@ -1,0 +1,25 @@
+# Every enabled check is an error: the Claude hook, pre-commit and CI all fail on findings.
+# Disabled checks are listed with the reason; don't add more without one.
+Checks: >
+  -*,
+  bugprone-*,
+  clang-analyzer-*,
+  cppcoreguidelines-*,
+  modernize-*,
+  performance-*,
+  readability-*,
+  -modernize-use-auto,
+  -modernize-use-trailing-return-type,
+  -bugprone-easily-swappable-parameters,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -cppcoreguidelines-avoid-magic-numbers
+# modernize-use-auto: conflicts with "prefer explicit types".
+# use-trailing-return-type, identifier-length, magic-numbers, easily-swappable-parameters: style noise.
+WarningsAsErrors: '*'
+# Project headers are linted; FetchContent deps (build/_deps/<name>-src/...) never are.
+# clang-tidy 20 ignores these two keys, so the hook, pre-commit and CI also pass them as
+# --header-filter / --exclude-header-filter. Keep all four places in sync.
+HeaderFilterRegex: '(^|.*/)(src|include)/.*'
+ExcludeHeaderFilterRegex: '(^|.*/)_deps/.*'
+FormatStyle: file

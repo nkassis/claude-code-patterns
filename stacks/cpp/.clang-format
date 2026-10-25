@@ -1,0 +1,7 @@
+# 4-space indent per the global code style; otherwise LLVM defaults.
+BasedOnStyle: LLVM
+Standard: Latest
+IndentWidth: 4
+AccessModifierOffset: -4
+ColumnLimit: 100
+PointerAlignment: Left
