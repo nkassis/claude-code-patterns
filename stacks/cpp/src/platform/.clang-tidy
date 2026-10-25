@@ -1,0 +1,9 @@
+# Platform layer: the only code allowed to touch SDL3 / ImGui backends. See docs/sdl3.md.
+# clang-tidy uses the nearest config per file, so these relaxations stay inside src/platform/.
+InheritParentConfig: true
+# reinterpret-cast, pointer-arithmetic: pixel buffers and SDL's void* APIs.
+# vararg: SDL's printf-style APIs (SDL_SetError, SDL_snprintf).
+Checks: >
+  -cppcoreguidelines-pro-type-reinterpret-cast,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+  -cppcoreguidelines-pro-type-vararg

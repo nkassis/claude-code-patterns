@@ -29,6 +29,8 @@ Fix clang-tidy findings; do not add `NOLINT` without a comment saying why.
 
 ## Rules
 
+- `docs/` holds guidance for specific areas; read a doc only when your task touches it. SDL3 / platform code: `docs/sdl3.md` (also linked from `src/platform/CLAUDE.md`).
+
 - Small `CMakeLists.txt` edits are fine; flag any significant restructuring for review first.
 - No new third-party library without asking.
 - Explicit types; when `auto` is unavoidable, add `// inferred: …`.

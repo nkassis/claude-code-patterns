@@ -19,6 +19,8 @@ trap 'rm -rf "$scratch"' EXIT
 setup_cpp() {
     # Lint with the starter's real configs and a compile database, as a configured project would.
     cp "$repo/stacks/cpp/.clang-format" "$repo/stacks/cpp/.clang-tidy" "$1/"
+    mkdir -p "$1/src/platform"
+    cp "$repo/stacks/cpp/src/platform/.clang-tidy" "$1/src/platform/"
     # A project header and a FetchContent-style dep header, both with findings.
     cp -r "$fixtures/cpp/project/." "$1/"
     [[ -n "$2" ]] || return 0
@@ -87,6 +89,9 @@ expect rust stop - 0 true
 expect cpp edit cpp/good.cpp 0
 expect cpp edit cpp/bad-format.cpp 0
 expect cpp edit cpp/bad-tidy.cpp 2
+# SDL-style interop is allowed in src/platform/ and blocked everywhere else.
+expect cpp edit cpp/platform/pixels.cpp 0 false src/platform
+expect cpp edit cpp/platform/pixels.cpp 2 false src
 # Findings in project headers block; findings in FetchContent deps (build/_deps/) don't.
 expect cpp edit cpp/uses-project-header.cpp 2 false src
 expect cpp edit cpp/uses-vendor-header.cpp 0 false src
