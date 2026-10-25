@@ -6,7 +6,7 @@ Developer tooling. Commands run from the repo root.
 
 ```sh
 sudo apt install ninja-build clang clang-format clang-tidy
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+cmake --preset dev        # CMakePresets.json: Ninja, Debug, clang++, build/, compile_commands.json
 uvx pre-commit install --hook-type pre-commit --hook-type pre-push
 ```
 
@@ -14,15 +14,15 @@ uvx pre-commit install --hook-type pre-commit --hook-type pre-push
 
 | Command | What it does |
 | --- | --- |
-| `cmake --build build` | Build |
-| `ctest --test-dir build --output-on-failure` | Catch2 tests |
-| `run-clang-tidy -p build` | Lint every translation unit |
+| `cmake --build --preset dev` | Build |
+| `ctest --preset dev` | Catch2 tests |
+| `run-clang-tidy -p build 'src/\|include/'` | Lint project translation units (not deps) |
 | `git ls-files '*.cpp' '*.hpp' \| xargs clang-format -i` | Format |
 
 ## Lint config
 
 - `.clang-format`: LLVM base, 4-space indent, 100 columns.
-- `.clang-tidy`: bugprone, clang-analyzer, cppcoreguidelines, modernize, performance, readability; `WarningsAsErrors: '*'`. Disabled checks are listed in the file with the reason (e.g. `modernize-use-auto` conflicts with explicit types).
+- `.clang-tidy`: bugprone, clang-analyzer, cppcoreguidelines, modernize, performance, readability; `WarningsAsErrors: '*'`. Disabled checks are listed in the file with the reason (e.g. `modernize-use-auto` conflicts with explicit types). Project headers under `src/` and `include/` are linted; `_deps/` headers are not. clang-tidy 20 ignores the header filters in `.clang-tidy`, so the hook, pre-commit and CI also pass them as `--header-filter` / `--exclude-header-filter`; keep all four places in sync.
 
 ## Claude Code hooks
 

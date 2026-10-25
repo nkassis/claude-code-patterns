@@ -19,10 +19,12 @@ trap 'rm -rf "$scratch"' EXIT
 setup_cpp() {
     # Lint with the starter's real configs and a compile database, as a configured project would.
     cp "$repo/stacks/cpp/.clang-format" "$repo/stacks/cpp/.clang-tidy" "$1/"
+    # A project header and a FetchContent-style dep header, both with findings.
+    cp -r "$fixtures/cpp/project/." "$1/"
     [[ -n "$2" ]] || return 0
-    mkdir -p "$1/build"
-    printf '[{"directory":"%s","file":"%s","arguments":["clang++","-std=c++23","-c","%s"]}]\n' \
-        "$1" "$2" "$2" >"$1/build/compile_commands.json"
+    local vendor="$1/build/_deps/vendor-src/include"
+    printf '[{"directory":"%s","file":"%s","arguments":["clang++","-std=c++23","-I%s","-c","%s"]}]\n' \
+        "$1" "$2" "$vendor" "$2" >"$1/build/compile_commands.json"
 }
 
 verify_cpp() {
@@ -31,16 +33,17 @@ verify_cpp() {
     clang-format --dry-run -Werror "$1" 2>&1
 }
 
-# expect <stack> <mode> <fixture|-> <expected exit> [stop_hook_active]
+# expect <stack> <mode> <fixture|-> <expected exit> [stop_hook_active] [dest dir in project]
 expect() {
-    local stack="$1" mode="$2" fixture="$3" want="$4" active="${5:-false}"
+    local stack="$1" mode="$2" fixture="$3" want="$4" active="${5:-false}" dest="${6:-}"
     local hook="$repo/stacks/$stack/.claude/hooks/check-$stack.sh"
-    local project="$scratch/$stack-$mode-${fixture//\//_}"
+    local project="$scratch/$stack-$mode-${fixture//\//_}${dest:+-${dest//\//_}}"
     local target="" input got=0 err
 
     mkdir -p "$project"
     if [[ "$fixture" != "-" ]]; then
-        target="$project/$(basename "$fixture")"
+        target="$project/${dest:+$dest/}$(basename "$fixture")"
+        mkdir -p "$(dirname "$target")"
         cp "$fixtures/$fixture" "$target"
     fi
     if declare -F "setup_$stack" >/dev/null; then
@@ -49,7 +52,7 @@ expect() {
     input="$(printf '{"tool_name":"Write","tool_input":{"file_path":"%s"},"stop_hook_active":%s}' "$target" "$active")"
     err="$(CLAUDE_PROJECT_DIR="$project" "$hook" "$mode" <<<"$input" 2>&1 >/dev/null)" || got=$?
 
-    local label="$stack $mode $fixture"
+    local label="$stack $mode $fixture${dest:+ in $dest/}"
     if [[ "$got" == 0 && "$want" == 0 ]] && declare -F "verify_$stack" >/dev/null; then
         err="$("verify_$stack" "$target")" || got="verify failed"
     fi
@@ -84,6 +87,9 @@ expect rust stop - 0 true
 expect cpp edit cpp/good.cpp 0
 expect cpp edit cpp/bad-format.cpp 0
 expect cpp edit cpp/bad-tidy.cpp 2
+# Findings in project headers block; findings in FetchContent deps (build/_deps/) don't.
+expect cpp edit cpp/uses-project-header.cpp 2 false src
+expect cpp edit cpp/uses-vendor-header.cpp 0 false src
 
 expect react edit react/good.ts 0
 expect react stop - 0 true

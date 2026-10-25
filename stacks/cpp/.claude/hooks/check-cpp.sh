@@ -47,7 +47,9 @@ if [[ "$header" == 0 && -f build/compile_commands.json ]]; then
         echo "check-cpp: clang-tidy not found; lint skipped." >&2
         exit 1
     fi
-    if ! out="$(clang-tidy -p build --quiet --warnings-as-errors='*' "$file" 2>&1)"; then
+    # Header filters are flags, not config: clang-tidy 20 ignores them in .clang-tidy.
+    if ! out="$(clang-tidy -p build --quiet --warnings-as-errors='*' \
+        --header-filter='(^|.*/)(src|include)/.*' --exclude-header-filter='(^|.*/)_deps/.*' "$file" 2>&1)"; then
         printf 'clang-tidy found problems in %s; fix them:\n%s\n' "$file" "$out" >&2
         exit 2
     fi

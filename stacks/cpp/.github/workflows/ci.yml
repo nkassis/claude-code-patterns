@@ -18,10 +18,14 @@ jobs:
       - name: Format
         run: git ls-files -z '*.c' '*.cc' '*.cpp' '*.cxx' '*.h' '*.hh' '*.hpp' '*.hxx' | xargs -0 -r clang-format --dry-run -Werror
       - name: Configure
-        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_COMPILER=clang++
+        run: cmake --preset dev
       - name: Build
-        run: cmake --build build
-      - name: clang-tidy
-        run: run-clang-tidy -p build -quiet -warnings-as-errors='*'
+        run: cmake --build --preset dev
+      - name: clang-tidy (project sources only, not FetchContent deps)
+        # Header filters as flags: clang-tidy 20 ignores them in .clang-tidy.
+        run: >-
+          run-clang-tidy -p build -quiet -warnings-as-errors='*'
+          -header-filter='(^|.*/)(src|include)/.*' -exclude-header-filter='(^|.*/)_deps/.*'
+          'src/|include/'
       - name: Test (Catch2 via CTest)
-        run: ctest --test-dir build --output-on-failure
+        run: ctest --preset dev

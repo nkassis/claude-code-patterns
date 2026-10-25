@@ -8,10 +8,11 @@ repos:
         entry: clang-format -i
         language: system
         types_or: [c, c++]
-      # Needs a configured build dir: cmake --preset dev (exports compile_commands.json).
+      # Needs a configured build dir: `cmake --preset dev` (CMakePresets.json; exports compile_commands.json).
       - id: clang-tidy
         name: clang-tidy
-        entry: clang-tidy -p build --quiet --warnings-as-errors=*
+        # Header filters as flags: clang-tidy 20 ignores them in .clang-tidy.
+        entry: clang-tidy -p build --quiet --warnings-as-errors=* --header-filter=(^|.*/)(src|include)/.* --exclude-header-filter=(^|.*/)_deps/.*
         language: system
         types_or: [c++]
         exclude: '\.(h|hh|hpp|hxx)$'

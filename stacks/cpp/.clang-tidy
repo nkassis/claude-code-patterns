@@ -17,5 +17,9 @@ Checks: >
 # modernize-use-auto: conflicts with "prefer explicit types".
 # use-trailing-return-type, identifier-length, magic-numbers, easily-swappable-parameters: style noise.
 WarningsAsErrors: '*'
-HeaderFilterRegex: '.*/(src|include)/.*'
+# Project headers are linted; FetchContent deps (build/_deps/<name>-src/...) never are.
+# clang-tidy 20 ignores these two keys, so the hook, pre-commit and CI also pass them as
+# --header-filter / --exclude-header-filter. Keep all four places in sync.
+HeaderFilterRegex: '(^|.*/)(src|include)/.*'
+ExcludeHeaderFilterRegex: '(^|.*/)_deps/.*'
 FormatStyle: file
