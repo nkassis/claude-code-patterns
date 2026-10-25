@@ -19,6 +19,8 @@
 | Builds and tests pass | — | — | yes |
 | No secrets committed | — | trufflehog, detect-private-key | secret-scan |
 
+Style lives in `.clang-format` (LLVM base, 4-space indent) and the check set in `.clang-tidy` (every check is an error). Change those files, with a reason, rather than working around them.
+
 Fix clang-tidy findings; do not add `NOLINT` without a comment saying why.
 
 ## Done means

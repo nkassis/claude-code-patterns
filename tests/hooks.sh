@@ -14,6 +14,23 @@ skip=0
 scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 
+# Optional per-stack hooks: setup_<stack> <project> <target> prepares the scratch project;
+# verify_<stack> <target> checks the file after a passing (exit 0) run.
+setup_cpp() {
+    # Lint with the starter's real configs and a compile database, as a configured project would.
+    cp "$repo/stacks/cpp/.clang-format" "$repo/stacks/cpp/.clang-tidy" "$1/"
+    [[ -n "$2" ]] || return 0
+    mkdir -p "$1/build"
+    printf '[{"directory":"%s","file":"%s","arguments":["clang++","-std=c++23","-c","%s"]}]\n' \
+        "$1" "$2" "$2" >"$1/build/compile_commands.json"
+}
+
+verify_cpp() {
+    # The hook applied clang-format, so CI's check must now pass.
+    [[ "$1" == *.cpp ]] || return 0
+    clang-format --dry-run -Werror "$1" 2>&1
+}
+
 # expect <stack> <mode> <fixture|-> <expected exit> [stop_hook_active]
 expect() {
     local stack="$1" mode="$2" fixture="$3" want="$4" active="${5:-false}"
@@ -26,10 +43,16 @@ expect() {
         target="$project/$(basename "$fixture")"
         cp "$fixtures/$fixture" "$target"
     fi
+    if declare -F "setup_$stack" >/dev/null; then
+        "setup_$stack" "$project" "$target"
+    fi
     input="$(printf '{"tool_name":"Write","tool_input":{"file_path":"%s"},"stop_hook_active":%s}' "$target" "$active")"
     err="$(CLAUDE_PROJECT_DIR="$project" "$hook" "$mode" <<<"$input" 2>&1 >/dev/null)" || got=$?
 
     local label="$stack $mode $fixture"
+    if [[ "$got" == 0 && "$want" == 0 ]] && declare -F "verify_$stack" >/dev/null; then
+        err="$("verify_$stack" "$target")" || got="verify failed"
+    fi
     if [[ "$got" == "$want" ]]; then
         printf 'PASS  %s\n' "$label"
         pass=$((pass + 1))
@@ -59,6 +82,8 @@ expect rust edit rust/bad.rs 2
 expect rust stop - 0 true
 
 expect cpp edit cpp/good.cpp 0
+expect cpp edit cpp/bad-format.cpp 0
+expect cpp edit cpp/bad-tidy.cpp 2
 
 expect react edit react/good.ts 0
 expect react stop - 0 true

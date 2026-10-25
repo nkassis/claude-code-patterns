@@ -1,0 +1,21 @@
+# Every enabled check is an error: the Claude hook, pre-commit and CI all fail on findings.
+# Disabled checks are listed with the reason; don't add more without one.
+Checks: >
+  -*,
+  bugprone-*,
+  clang-analyzer-*,
+  cppcoreguidelines-*,
+  modernize-*,
+  performance-*,
+  readability-*,
+  -modernize-use-auto,
+  -modernize-use-trailing-return-type,
+  -bugprone-easily-swappable-parameters,
+  -readability-identifier-length,
+  -readability-magic-numbers,
+  -cppcoreguidelines-avoid-magic-numbers
+# modernize-use-auto: conflicts with "prefer explicit types".
+# use-trailing-return-type, identifier-length, magic-numbers, easily-swappable-parameters: style noise.
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*/(src|include)/.*'
+FormatStyle: file
