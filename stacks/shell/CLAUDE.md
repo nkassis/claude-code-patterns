@@ -26,6 +26,7 @@ Every script passes `shellcheck -x`, and has been run once against a real or dry
 
 ## Rules
 
+- Deviating from a global default (a library, tool or pattern)? In an interactive session, ask first; unattended, decide. Either way, add one line to `docs/decisions.md` (date, what, why) and flag it in the PR. Read that file before changing a choice it records.
 - Quote every expansion. Use arrays for argument lists, never word-split strings.
 - `mktemp` + `trap 'rm -rf …' EXIT` for temp files.
 - New scripts are documented in `README.md` (humans) and `AGENT.md` (agents).

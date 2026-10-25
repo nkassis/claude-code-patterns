@@ -29,6 +29,7 @@ Fix clang-tidy findings; do not add `NOLINT` without a comment saying why.
 
 ## Rules
 
+- Deviating from a global default (a library, tool or pattern)? In an interactive session, ask first; unattended, decide. Either way, add one line to `docs/decisions.md` (date, what, why) and flag it in the PR. Read that file before changing a choice it records.
 - `docs/` holds guidance for specific areas; read a doc only when your task touches it. SDL3 / platform code: `docs/sdl3.md` (also linked from `src/platform/CLAUDE.md`).
 
 - Small `CMakeLists.txt` edits are fine; flag any significant restructuring for review first.

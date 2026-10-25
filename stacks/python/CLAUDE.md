@@ -28,6 +28,7 @@ If a hook blocks you, fix the reported problem. Do not add `# noqa` or per-file 
 
 ## Rules
 
+- Deviating from a global default (a library, tool or pattern)? In an interactive session, ask first; unattended, decide. Either way, add one line to `docs/decisions.md` (date, what, why) and flag it in the PR. Read that file before changing a choice it records.
 - Never hardcode secrets. Config comes from env (`.env` locally, `.env.example` documents it).
 - Small, single-responsibility functions; modules importable and testable in isolation.
 - A bug fix comes with the test that would have caught it. If a test fails, say whether the code or the test is wrong before changing either.
