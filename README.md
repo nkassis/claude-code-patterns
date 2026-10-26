@@ -9,18 +9,20 @@ Per-stack starters for Claude Code projects. Each one states a guardrail once in
 | `stacks/<stack>/` | Starter files for one language |
 | `security/` | Secret scanning, read-deny rules, env hygiene |
 | `CLAUDE-global.md` | Personal defaults, goes in `~/.claude/CLAUDE.md` |
+| `skills/` | Claude Code skills, go in `~/.claude/skills/` |
 
 How it works: [docs/how-it-works.md](docs/how-it-works.md)
 
 ## Use
 
-Prerequisites: `uv`, `jq` or `python3`, `trufflehog`, and the stack's own tools (see the table below). Once per machine:
+Prerequisites: `uv`, `jq` or `python3`, `trufflehog`, and the stack's own tools (see the table below). Commands run from a clone of this repo.
+
+### Once per machine
 
 ```sh
 uv tool install pre-commit
+./install-global.sh   # symlinks CLAUDE-global.md and skills/ into ~/.claude; --force moves existing files to .bak
 ```
-
-Commands run from a clone of this repo.
 
 ### Start a project
 
@@ -33,13 +35,11 @@ pre-commit install --hook-type pre-commit --hook-type pre-push
 ### Apply to an existing project
 
 ```sh
-cp -r --update=none stacks/python/. security/.github security/.env.example ~/projects/existing/
+cp -r --update=none stacks/python/. security/.github security/.env.example ~/projects/existing/   # never overwrites; GNU coreutils 9.3+, macOS: cp -rn
 cd ~/projects/existing
 pre-commit install --hook-type pre-commit --hook-type pre-push
 pre-commit run --all-files
 ```
-
-`--update=none` never overwrites (GNU coreutils 9.3+). On macOS, use `cp -rn`.
 
 ### Then, in both cases
 
@@ -69,4 +69,4 @@ Formatters apply. Lint findings block Claude and are fed back to it. A missing t
 
 ## Developing this repo
 
-`AGENT.md` has the hook contract; `tests/hooks.sh` runs every hook against good and bad fixtures.
+`AGENT.md` has the hook contract; `tests/hooks.sh` runs every hook against good and bad fixtures, `tests/install-global.sh` the installer against a fake `$HOME`.
