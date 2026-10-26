@@ -6,7 +6,7 @@ Developer tooling. Commands run from the repo root.
 
 ```sh
 sudo apt install shellcheck        # or: brew install shellcheck
-uvx pre-commit install --hook-type pre-commit --hook-type pre-push
+pre-commit install --hook-type pre-commit --hook-type pre-push   # pre-commit itself: `uv tool install pre-commit`, once per machine
 cp .env.example .env.local         # then fill in the placeholders
 ```
 
@@ -15,7 +15,7 @@ cp .env.example .env.local         # then fill in the placeholders
 | Command | What it does |
 | --- | --- |
 | `shellcheck -x --source-path=SCRIPTDIR <file>` | Lint one script |
-| `uvx pre-commit run --all-files` | Every hook against the whole tree |
+| `pre-commit run --all-files` | Every hook against the whole tree |
 
 ## Scripts
 
