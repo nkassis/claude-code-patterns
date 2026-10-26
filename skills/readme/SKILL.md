@@ -18,9 +18,9 @@ A README answers two questions fast: what is this, how do I use it. Everything e
 
 ## Rules
 
-- First command within the first 20 lines.
+- First command within the first 25 lines (one screen; a four-row directory table plus the docs link fits).
 - No paragraph longer than three sentences.
-- At most one sentence before a command block, none after unless it is a next step.
+- At most one sentence before a command block, none after unless it is a next step. A caveat about one command goes in a `#` comment on that line.
 - Principles, rationale, design history: not in the README. Move to docs/<topic>.md, link once.
 - No headings named Overview, Introduction, Getting Started, Features, Philosophy. Use Description, Use, Covered.
 - No bullet lists of adjectives. A feature is a row in a table or a sentence that says what it does.
@@ -31,6 +31,6 @@ A README answers two questions fast: what is this, how do I use it. Everything e
 
 ## Check before finishing
 
-- Read the first 20 lines as a stranger. Can they tell what it is and type the first command?
+- Read the first 25 lines as a stranger. Can they tell what it is and type the first command?
 - Count paragraphs over three sentences. Should be zero.
 - Search for "—". Should be zero.
