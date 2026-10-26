@@ -1,4 +1,4 @@
-# Install once per clone: `uvx pre-commit install --hook-type pre-commit --hook-type pre-push`
+# Install once per machine: `uv tool install pre-commit`; once per clone: `pre-commit install --hook-type pre-commit --hook-type pre-push`
 # Append security/.pre-commit-config.yaml's `repos:` entries below.
 repos:
   # Lint and format with the versions in uv.lock, so hooks, Claude and CI agree.

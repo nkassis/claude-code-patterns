@@ -7,7 +7,7 @@ Developer tooling. Commands run from the repo root.
 ```sh
 rustup show                       # installs the toolchain from rust-toolchain.toml
 rustup component add rustfmt clippy
-uvx pre-commit install --hook-type pre-commit --hook-type pre-push
+pre-commit install --hook-type pre-commit --hook-type pre-push   # pre-commit itself: `uv tool install pre-commit`, once per machine
 ```
 
 ## Commands

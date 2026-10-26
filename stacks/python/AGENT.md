@@ -6,7 +6,7 @@ Developer tooling. Commands run from the repo root.
 
 ```sh
 uv sync
-uvx pre-commit install --hook-type pre-commit --hook-type pre-push
+pre-commit install --hook-type pre-commit --hook-type pre-push   # pre-commit itself: `uv tool install pre-commit`, once per machine
 cp .env.example .env    # then fill in the placeholders
 ```
 
@@ -17,7 +17,7 @@ cp .env.example .env    # then fill in the placeholders
 | `uv run ruff check .` | Lint (`--fix` to apply safe fixes) |
 | `uv run black .` | Format (`--check` in CI) |
 | `uv run pytest` | Tests |
-| `uvx pre-commit run --all-files` | Every hook against the whole tree |
+| `pre-commit run --all-files` | Every hook against the whole tree |
 
 ## Claude Code hooks
 

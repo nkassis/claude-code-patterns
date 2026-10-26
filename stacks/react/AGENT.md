@@ -44,7 +44,7 @@ Node version is pinned in `.nvmrc` / `package.json#engines`; use it.
 
 ## Pre-commit
 
-`uvx pre-commit install --hook-type pre-commit --hook-type pre-push` once per clone (pre-commit is the hook manager for every stack). Prettier and ESLint run on staged files; `typecheck` runs on push. Do not bypass with `--no-verify`.
+`pre-commit install --hook-type pre-commit --hook-type pre-push` once per clone, after `uv tool install pre-commit` once per machine. pre-commit is the hook manager for every stack. Prettier and ESLint run on staged files; `typecheck` runs on push. Do not bypass with `--no-verify`.
 
 ## Claude Code hooks
 

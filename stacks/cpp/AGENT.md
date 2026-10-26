@@ -7,7 +7,7 @@ Developer tooling. Commands run from the repo root.
 ```sh
 sudo apt install ninja-build clang clang-format clang-tidy
 cmake --preset dev        # CMakePresets.json: Ninja, Debug, clang++, build/, compile_commands.json
-uvx pre-commit install --hook-type pre-commit --hook-type pre-push
+pre-commit install --hook-type pre-commit --hook-type pre-push   # pre-commit itself: `uv tool install pre-commit`, once per machine
 ```
 
 ## Commands
