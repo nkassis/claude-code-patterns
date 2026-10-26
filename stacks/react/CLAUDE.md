@@ -44,6 +44,7 @@ A file holds one component. A component is under {{150}} lines; split by behavio
 
 ## Rules
 
+- Deviating from a global default (a library, tool or pattern)? In an interactive session, ask first; unattended, decide. Either way, add one line to `docs/decisions.md` (date, what, why) and flag it in the PR. Read that file before changing a choice it records.
 - **Data flows down, events flow up.** Components receive data and callbacks as props; they do not reach into a store or a query from deep inside unless they are a route or feature root.
 - **Server state lives in TanStack Query only.** No copying query results into `useState`. Mutations invalidate; they do not patch local copies.
 - **Derive, don't sync.** If a value can be computed from props or state, compute it (useMemo if it is expensive). `useEffect` that sets state from other state is a bug.

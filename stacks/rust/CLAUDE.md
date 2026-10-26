@@ -27,5 +27,6 @@ Fix Clippy findings; do not add `#[allow(...)]` without a comment saying why.
 
 ## Rules
 
+- Deviating from a global default (a library, tool or pattern)? In an interactive session, ask first; unattended, decide. Either way, add one line to `docs/decisions.md` (date, what, why) and flag it in the PR. Read that file before changing a choice it records.
 - Explicit types on public items; flag inferred ones that couldn't be made explicit with `// inferred: …`.
 - Unit tests in the same file (`#[cfg(test)] mod tests`); integration tests in `tests/`.

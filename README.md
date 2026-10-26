@@ -6,6 +6,10 @@ My Claude Code setup patterns: per-stack starters that **enforce** my guardrails
 - `stacks/<stack>/`: copy into a new project's root.
 - `security/`: layer onto any stack. See `security/README.md`.
 
+## Reading the global file
+
+`CLAUDE-global.md` has three tiers, each with its own verb. **Rules** are enforced by a hook, pre-commit or CI, so there is nothing to decide. **Defaults** (every library choice) are used unless a reason fits the exit condition written next to them, and any deviation gets one line in the project's `docs/decisions.md` (every starter ships one). **Taste** is followed when it's free and never argued over. When you copy a starter, resolve the defaults into its `CLAUDE.md` as facts ("Logging: stdlib logging (CLI, see decisions.md)"); from then on the global file is reference, not a standing instruction.
+
 ## How a guardrail is enforced
 
 Each rule is stated once and checked at four points:
