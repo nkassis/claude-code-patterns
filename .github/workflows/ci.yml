@@ -1,0 +1,49 @@
+name: ci
+
+# Tier 1: cheap checks on the templates themselves. No stack toolchains are installed;
+# hook test cases whose linter isn't on the runner report SKIP.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Lint and test the templates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+
+      - name: shellcheck
+        run: shellcheck install-global.sh stacks/*/.claude/hooks/*.sh tests/*.sh
+
+      - name: actionlint
+        run: |
+          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.7
+          "$(go env GOPATH)/bin/actionlint" .github/workflows/*.yml stacks/*/.github/workflows/*.yml security/.github/workflows/*.yml
+
+      - name: Every JSON and YAML file parses
+        run: |
+          git ls-files -z '*.json' '*.yml' '*.yaml' | uv run --no-project --quiet --with pyyaml python -c '
+          import json, sys, yaml
+          bad = 0
+          for name in filter(None, sys.stdin.read().split("\0")):
+              try:
+                  with open(name) as f:
+                      json.load(f) if name.endswith(".json") else list(yaml.safe_load_all(f))
+              except Exception as e:
+                  print(f"{name}: {e}")
+                  bad = 1
+          sys.exit(bad)
+          '
+
+      - name: Hook tests
+        run: bash tests/hooks.sh
+
+      - name: Installer tests
+        run: bash tests/install-global.sh
