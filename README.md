@@ -1,5 +1,7 @@
 # claude-code-patterns
 
+[![ci](https://github.com/nkassis/claude-code-patterns/actions/workflows/ci.yml/badge.svg)](https://github.com/nkassis/claude-code-patterns/actions/workflows/ci.yml)
+
 Utopia Planitia: where the ships get fitted out.
 
 Per-stack starters for Claude Code projects. Each one states a guardrail once in `CLAUDE.md` and enforces it three times: a Claude Code hook on every edit, pre-commit on every commit, CI on every push. A shared security layer goes on every project.
