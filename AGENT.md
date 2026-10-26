@@ -11,9 +11,12 @@ Tooling for working on this repo (the templates themselves). Commands run from t
 
 ## Checks
 
+`.github/workflows/ci.yml` runs all of these on every PR and push to main, plus a JSON/YAML parse check over every tracked file; `secret-scan.yml` runs TruffleHog on every push.
+
 | Command | What it does |
 | --- | --- |
 | `shellcheck install-global.sh stacks/*/.claude/hooks/*.sh tests/*.sh` | Every script here must be shellcheck-clean |
+| `actionlint .github/workflows/*.yml stacks/*/.github/workflows/*.yml security/.github/workflows/*.yml` | Lints every workflow, including the templates that only run once copied into a project. CI pins v1.7.7. |
 | `bash tests/install-global.sh` | Runs the installer against a fake `$HOME`: clean, re-run, existing file with and without `--force`, stale symlink, worktree. Exits non-zero on any FAIL. |
 | `bash tests/hooks.sh` | Runs each `check-<stack>.sh` with fake hook JSON against good/bad fixtures. PASS/FAIL per case; SKIP when that stack's linter isn't installed. Exits non-zero on any FAIL. |
 
