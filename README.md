@@ -12,6 +12,7 @@ Per-stack starters for Claude Code projects. Each one states a guardrail once in
 | `security/` | Secret scanning, read-deny rules, env hygiene |
 | `CLAUDE-global.md` | Personal defaults, goes in `~/.claude/CLAUDE.md` |
 | `skills/` | Claude Code skills, go in `~/.claude/skills/` |
+| `rules/` | Path-scoped Claude Code rules, go in a project's `.claude/rules/` |
 
 How it works: [docs/how-it-works.md](docs/how-it-works.md)
 
@@ -48,6 +49,8 @@ pre-commit run --all-files
 Merge `security/.claude/settings.json` and `security/.pre-commit-config.yaml` into the project's copies, and append `security/gitignore-env.txt` to `.gitignore`. In an existing project, also merge anything `--update=none` skipped, such as `AGENTS.md`, `CLAUDE.md` and `.gitignore`. Two stacks in one repo merge the same way; hook scripts have distinct names and coexist.
 
 Fill in the `{{placeholders}}` in `AGENTS.md` and `CLAUDE.md`. Record any deviation from `CLAUDE-global.md`'s defaults in `docs/decisions.md`.
+
+For a decision log, copy `rules/decision-log.md` into the project's `.claude/rules/`. At a real fork it has agents run `/decide`, which asks you and writes the entry.
 
 ## Stacks
 
