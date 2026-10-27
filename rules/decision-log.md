@@ -18,6 +18,8 @@ Everything else belongs in a commit message, a docstring, or nowhere. "Added pyd
 
 If a reader could not disagree with the entry, it is not a decision. Cut it.
 
+When a fork passes all three tests and the alternatives are real, invoke `/decide` before writing the code or the entry. Do not pick.
+
 ## Shape of an entry
 
 Under 150 words. Numbered, number never reused.
