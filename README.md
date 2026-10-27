@@ -4,7 +4,7 @@
 
 Utopia Planitia: where the ships get fitted out.
 
-Per-stack starters for Claude Code projects. Each one states a guardrail once in `CLAUDE.md` and enforces it three times: a Claude Code hook on every edit, pre-commit on every commit, CI on every push. A shared security layer goes on every project.
+Per-stack starters for Claude Code projects. Each one states a guardrail once in `AGENTS.md`, which any coding agent reads and `CLAUDE.md` imports, and enforces it three times: a Claude Code hook on every edit, pre-commit on every commit, CI on every push. A shared security layer goes on every project.
 
 | Directory | Contents |
 | --- | --- |
@@ -45,9 +45,9 @@ pre-commit run --all-files
 
 ### Then, in both cases
 
-Merge `security/.claude/settings.json` and `security/.pre-commit-config.yaml` into the project's copies, and append `security/gitignore-env.txt` to `.gitignore`. In an existing project, also merge anything `--update=none` skipped, such as `CLAUDE.md` and `.gitignore`. Two stacks in one repo merge the same way; hook scripts have distinct names and coexist.
+Merge `security/.claude/settings.json` and `security/.pre-commit-config.yaml` into the project's copies, and append `security/gitignore-env.txt` to `.gitignore`. In an existing project, also merge anything `--update=none` skipped, such as `AGENTS.md`, `CLAUDE.md` and `.gitignore`. Two stacks in one repo merge the same way; hook scripts have distinct names and coexist.
 
-Fill in the `{{placeholders}}` in `CLAUDE.md` and `AGENT.md`. Record any deviation from `CLAUDE-global.md`'s defaults in `docs/decisions.md`.
+Fill in the `{{placeholders}}` in `AGENTS.md` and `CLAUDE.md`. Record any deviation from `CLAUDE-global.md`'s defaults in `docs/decisions.md`.
 
 ## Stacks
 
@@ -63,7 +63,7 @@ Formatters apply. Lint findings block Claude and are fed back to it. A missing t
 
 ## Covered
 
-**Code quality.** Format and lint on every edit, a project-wide check before Claude stops (python, rust, react), the same tools in pre-commit. `CLAUDE.md` states what "done" means.
+**Code quality.** Format and lint on every edit, a project-wide check before Claude stops (python, rust, react), the same tools in pre-commit. `AGENTS.md` states what "done" means.
 
 **CI.** One GitHub Actions workflow per stack. Actions pinned to release tags, Dependabot to keep the pins current.
 
@@ -71,4 +71,4 @@ Formatters apply. Lint findings block Claude and are fed back to it. A missing t
 
 ## Developing this repo
 
-`AGENT.md` has the hook contract; `tests/hooks.sh` runs every hook against good and bad fixtures, `tests/install-global.sh` the installer against a fake `$HOME`.
+`AGENTS.md` has the hook contract; `tests/hooks.sh` runs every hook against good and bad fixtures, `tests/install-global.sh` the installer against a fake `$HOME`, `tests/agents-md.sh` checks the AGENTS.md / CLAUDE.md split.
