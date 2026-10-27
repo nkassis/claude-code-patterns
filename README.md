@@ -10,6 +10,7 @@ Per-stack starters for Claude Code projects. Each one states a guardrail once in
 | --- | --- |
 | `stacks/<stack>/` | Starter files for one language |
 | `security/` | Secret scanning, read-deny rules, env hygiene |
+| `github/` | Opt-in branch protection ruleset, see [github/README.md](github/README.md) |
 | `CLAUDE-global.md` | Personal defaults, goes in `~/.claude/CLAUDE.md` |
 | `skills/` | Claude Code skills, go in `~/.claude/skills/` |
 
@@ -71,4 +72,4 @@ Formatters apply. Lint findings block Claude and are fed back to it. A missing t
 
 ## Developing this repo
 
-`AGENT.md` has the hook contract; `tests/hooks.sh` runs every hook against good and bad fixtures, `tests/install-global.sh` the installer against a fake `$HOME`.
+`AGENT.md` has the hook contract; `tests/hooks.sh` runs every hook against good and bad fixtures, `tests/install-global.sh` the installer against a fake `$HOME`, `tests/protect.sh` the ruleset script against a stub `gh`.
