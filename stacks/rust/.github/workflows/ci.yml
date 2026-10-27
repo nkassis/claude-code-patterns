@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   check:
+    name: ci-rust
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

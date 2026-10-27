@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   checks:
-    name: Lint and test the templates
+    name: ci
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
