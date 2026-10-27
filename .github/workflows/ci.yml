@@ -20,7 +20,7 @@ jobs:
       - uses: astral-sh/setup-uv@v6
 
       - name: shellcheck
-        run: shellcheck install-global.sh stacks/*/.claude/hooks/*.sh tests/*.sh
+        run: shellcheck install-global.sh github/*.sh stacks/*/.claude/hooks/*.sh tests/*.sh
 
       - name: actionlint
         run: |
@@ -47,3 +47,6 @@ jobs:
 
       - name: Installer tests
         run: bash tests/install-global.sh
+
+      - name: protect.sh tests
+        run: bash tests/protect.sh
