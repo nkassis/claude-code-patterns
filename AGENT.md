@@ -15,10 +15,16 @@ Tooling for working on this repo (the templates themselves). Commands run from t
 
 | Command | What it does |
 | --- | --- |
-| `shellcheck install-global.sh stacks/*/.claude/hooks/*.sh tests/*.sh` | Every script here must be shellcheck-clean |
+| `shellcheck install-global.sh stacks/*/.claude/hooks/*.sh security/.claude/hooks/*.sh tests/*.sh` | Every script here must be shellcheck-clean |
 | `actionlint .github/workflows/*.yml stacks/*/.github/workflows/*.yml security/.github/workflows/*.yml` | Lints every workflow, including the templates that only run once copied into a project. CI pins v1.7.7. |
 | `bash tests/install-global.sh` | Runs the installer against a fake `$HOME`: clean, re-run, existing file with and without `--force`, stale symlink, worktree. Exits non-zero on any FAIL. |
-| `bash tests/hooks.sh` | Runs each `check-<stack>.sh` with fake hook JSON against good/bad fixtures. PASS/FAIL per case; SKIP when that stack's linter isn't installed. Exits non-zero on any FAIL. |
+| `bash tests/hooks.sh` | Runs each `check-<stack>.sh` with fake hook JSON against good/bad fixtures, `guard-bash.sh` against blocked and allowed command lines in a scratch repo, and `no-commit-to-branch` against a real commit on main. PASS/FAIL per case; SKIP when that stack's linter, or `pre-commit`, isn't installed. Exits non-zero on any FAIL. |
+
+## Guarding main here
+
+This repo uses its own branch guard. `.claude/settings.json` runs `security/.claude/hooks/guard-bash.sh` in place before every Bash call, and `.pre-commit-config.yaml` has `no-commit-to-branch`. Run `pre-commit install` once per clone. Work on a feature branch or in a worktree.
+
+`guard-bash.sh` doesn't follow the `check-<stack>.sh` contract. It is a PreToolUse hook: exit 2 blocks the command, exit 0 lets it run. To add a rule, write a `rule_<name>` function and chain it in `check_git`.
 
 ## Hook script contract
 

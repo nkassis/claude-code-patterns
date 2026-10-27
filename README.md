@@ -45,7 +45,7 @@ pre-commit run --all-files
 
 ### Then, in both cases
 
-Merge `security/.claude/settings.json` and `security/.pre-commit-config.yaml` into the project's copies, and append `security/gitignore-env.txt` to `.gitignore`. In an existing project, also merge anything `--update=none` skipped, such as `CLAUDE.md` and `.gitignore`. Two stacks in one repo merge the same way; hook scripts have distinct names and coexist.
+Copy `security/.claude/hooks/guard-bash.sh` into the project's `.claude/hooks/`. Merge `security/.claude/settings.json` and `security/.pre-commit-config.yaml` into the project's copies, and append `security/gitignore-env.txt` to `.gitignore`. In an existing project, also merge anything `--update=none` skipped, such as `CLAUDE.md` and `.gitignore`. Two stacks in one repo merge the same way; hook scripts have distinct names and coexist.
 
 Fill in the `{{placeholders}}` in `CLAUDE.md` and `AGENT.md`. Record any deviation from `CLAUDE-global.md`'s defaults in `docs/decisions.md`.
 
@@ -67,7 +67,11 @@ Formatters apply. Lint findings block Claude and are fed back to it. A missing t
 
 **CI.** One GitHub Actions workflow per stack. Actions pinned to release tags, Dependabot to keep the pins current.
 
-**Security.** TruffleHog on every push and PR, plus `detect-private-key` and large-file checks in pre-commit. Claude is denied reads of `.env` files (not `.env.example`), keys, `~/.ssh` and `~/.aws`, and every project gets a `.env.example` and a gitignore block.
+**Security.** TruffleHog on every push and PR, plus `detect-private-key` and large-file checks in pre-commit. Claude is denied reads of `.env` files (not `.env.example`), keys, `~/.ssh` and `~/.aws`, and every project gets a `.env.example` and a gitignore block. Main and master are guarded locally:
+- A PreToolUse hook blocks Claude from committing on them, pushing to them, force pushing or deleting them.
+- pre-commit `no-commit-to-branch` rejects anyone's commit there.
+
+These layers catch mistakes. They don't stop someone determined: aliases, scripts, `bash -c` and `--no-verify` get past them. A server-side branch ruleset is the gate.
 
 ## Developing this repo
 
