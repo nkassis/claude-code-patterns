@@ -99,5 +99,97 @@ expect cpp edit cpp/uses-vendor-header.cpp 0 false src
 expect react edit react/good.ts 0
 expect react stop - 0 true
 
+# security/.claude/hooks/guard-bash.sh: PreToolUse on Bash. A scratch repo on main with a
+# worktree on a feature branch; each case runs one command line from one of them.
+git_q() { git -c user.name=test -c user.email=test@example.com "$@" >/dev/null 2>&1; }
+main_repo="$scratch/guard-main"
+feature_repo="$scratch/guard-feature"
+git_q init -b main "$main_repo"
+git_q -C "$main_repo" commit --allow-empty -m init
+git_q -C "$main_repo" worktree add -b feat "$feature_repo"
+
+# guard <expected exit> <main|feature> <command line>
+guard() {
+    local want="$1" where="$2" cmd="$3" dir got=0 err input
+    [[ "$where" == main ]] && dir="$main_repo" || dir="$feature_repo"
+    cmd="${cmd//\\/\\\\}"
+    input="$(printf '{"tool_name":"Bash","tool_input":{"command":"%s"},"cwd":"%s"}' "${cmd//\"/\\\"}" "$dir")"
+    err="$(CLAUDE_PROJECT_DIR="$dir" "$repo/security/.claude/hooks/guard-bash.sh" <<<"$input" 2>&1)" || got=$?
+    if [[ "$got" == "$want" ]]; then
+        printf 'PASS  guard on %s: %s\n' "$where" "$3"
+        pass=$((pass + 1))
+    else
+        printf 'FAIL  guard on %s: %s: exit %s, want %s\n%s\n' "$where" "$3" "$got" "$want" "$err"
+        fail=$((fail + 1))
+    fi
+}
+
+# Blocked: commit on main, push to main, force push, delete main.
+guard 2 main 'git commit -m "wip"'
+guard 2 main 'git commit --amend --no-edit'
+guard 2 feature "git -C $main_repo commit -m wip"
+guard 2 feature "cd $main_repo && git commit -m wip"
+guard 2 feature 'git add -A && git commit -m wip; git push origin main'
+guard 2 feature 'git push origin HEAD:main'
+guard 2 feature 'git push origin feat:refs/heads/master'
+guard 2 feature 'git push origin :main'
+guard 2 feature 'git push origin --delete main'
+guard 2 main 'git push'
+guard 2 main 'git push origin'
+guard 2 main 'git push -u origin HEAD'
+guard 2 feature 'git push --all origin'
+guard 2 feature 'git push -f origin feat'
+guard 2 feature 'git push -uf origin feat'
+guard 2 feature 'git push --force origin feat'
+guard 2 feature 'git push --force-with-lease origin feat'
+guard 2 feature 'git push origin +feat'
+guard 2 feature 'git branch -D main'
+guard 2 feature 'git branch -d master'
+guard 2 feature 'git branch --delete --force main'
+
+# Allowed: the normal feature-branch flow, and reads.
+guard 0 feature 'git commit -m "fix: guard main; tests for git push origin main"'
+guard 0 feature 'git push -u origin feat'
+guard 0 feature 'git push -u origin HEAD'
+guard 0 feature 'git push'
+guard 0 feature 'git push origin feat:feat'
+guard 0 main "cd $feature_repo && git commit -m wip && git push -u origin feat"
+guard 0 main 'git fetch origin'
+guard 0 main 'git pull --ff-only'
+guard 0 main 'git switch -c feat-2'
+guard 0 main 'git log --oneline main'
+guard 0 feature 'git branch -D old-feature'
+guard 0 main 'echo "git push origin main"'
+guard 0 main 'ls'
+
+# security/.pre-commit-config.yaml: no-commit-to-branch rejects a real commit on main.
+# Needs pre-commit (CI installs it) and network for the first hook-repo clone.
+if command -v pre-commit >/dev/null 2>&1; then
+    precommit_repo="$scratch/precommit"
+    git_q init -b main "$precommit_repo"
+    cp "$repo/security/.pre-commit-config.yaml" "$precommit_repo/.pre-commit-config.yaml"
+    git_q -C "$precommit_repo" add .pre-commit-config.yaml
+    (cd "$precommit_repo" && pre-commit install >/dev/null)
+    # trufflehog is a system binary that CI doesn't install; it isn't what this case tests.
+    if SKIP=trufflehog git_q -C "$precommit_repo" commit -m "on main"; then
+        printf 'FAIL  pre-commit no-commit-to-branch: commit on main succeeded\n'
+        fail=$((fail + 1))
+    else
+        printf 'PASS  pre-commit no-commit-to-branch rejects a commit on main\n'
+        pass=$((pass + 1))
+    fi
+    git_q -C "$precommit_repo" switch -c feat
+    if SKIP=trufflehog git_q -C "$precommit_repo" commit -m "on feat"; then
+        printf 'PASS  pre-commit no-commit-to-branch allows a commit on a feature branch\n'
+        pass=$((pass + 1))
+    else
+        printf 'FAIL  pre-commit no-commit-to-branch: commit on feat rejected\n'
+        fail=$((fail + 1))
+    fi
+else
+    printf 'SKIP  pre-commit no-commit-to-branch (pre-commit not installed)\n'
+    skip=$((skip + 1))
+fi
+
 printf '\n%d passed, %d failed, %d skipped\n' "$pass" "$fail" "$skip"
 [[ "$fail" == 0 ]]
