@@ -70,7 +70,7 @@ expect() {
     fi
 }
 
-for stack in python shell rust cpp react; do
+for stack in python shell rust cpp react php; do
     expect "$stack" edit other.txt 0
 done
 
@@ -98,6 +98,10 @@ expect cpp edit cpp/uses-vendor-header.cpp 0 false src
 
 expect react edit react/good.ts 0
 expect react stop - 0 true
+
+expect php edit php/good.php 0
+expect php edit php/bad.php 2
+expect php stop - 0 true
 
 printf '\n%d passed, %d failed, %d skipped\n' "$pass" "$fail" "$skip"
 [[ "$fail" == 0 ]]
