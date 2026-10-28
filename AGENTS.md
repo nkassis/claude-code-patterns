@@ -7,6 +7,7 @@ Tooling for working on this repo (the templates themselves). Commands run from t
 - `stacks/<stack>/`: starter files copied verbatim into new projects. `AGENTS.md` holds what any agent needs: stack, commands, guardrails table, "done means", rules. `CLAUDE.md` imports it with `@AGENTS.md` and adds only Claude Code specifics (hooks); no line appears in both.
 - `security/`: stack-independent secret hygiene.
 - `skills/<name>/SKILL.md`: global Claude Code skills. `install-global.sh` symlinks each one, and `CLAUDE-global.md`, into `~/.claude/`; run it from the main clone (it refuses in a worktree, whose links would dangle after removal). A real file at a target is skipped (exit 1) unless `--force`, which moves it to `<target>.bak`.
+- `rules/<name>.md`: path-scoped Claude Code rules, copied by hand into a project's `.claude/rules/`; not installed globally. `rules/decision-log.md` comes from moriarty and tells agents when to run the `decide` skill.
 - `tests/hooks.sh` + `tests/fixtures/<stack>/`: hook script tests. `tests/install-global.sh`: installer tests against a fake `$HOME`. `tests/agents-md.sh`: the AGENTS.md / CLAUDE.md split in every stack.
 
 ## Checks
