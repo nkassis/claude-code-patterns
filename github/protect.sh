@@ -169,7 +169,10 @@ fi
 
 if [[ ${#checks[@]} -eq 0 ]]; then
     discovered="$(discover_checks "$repo")" || exit 1
-    [[ -z "$discovered" ]] || mapfile -t checks <<<"$discovered"
+    # A read loop, not mapfile: mapfile needs bash 4 and macOS ships 3.2.
+    if [[ -n "$discovered" ]]; then
+        while IFS= read -r check; do checks+=("$check"); done <<<"$discovered"
+    fi
     [[ ${#checks[@]} -gt 0 ]] ||
         die "no check runs on $repo's default branch yet; push CI first or pass --check"
 fi
