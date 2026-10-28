@@ -7,7 +7,7 @@ When a question is not answered here, stop and ask; do not decide silently. Comm
 ## Stack
 
 - PHP {{8.4}}, managed with Composer. Add dependencies with `composer require` (and only after asking); commit `composer.lock`.
-- Laravel {{12}}. Config comes from `config/` reading env; never call `env()` outside `config/`.
+- Laravel {{13}}. Config comes from `config/` reading env; never call `env()` outside `config/`.
 - Pint (Laravel preset) for formatting, PHPStan with Larastan for static analysis (`phpstan.neon.dist`).
 - Pest for tests, in `tests/Feature` and `tests/Unit`.
 - Typed parameters and return types on every function and method.
