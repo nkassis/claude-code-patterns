@@ -6,7 +6,7 @@ Three kinds of guidance live here. Read the verb.
 - **Defaults** are what I pick when nothing argues otherwise. Use them unless you have a reason that fits the exit condition written next to the default. When you deviate, record one line in the project's `docs/decisions.md` (what you chose, why) and mention it in your progress comment or PR. In an interactive session, ask before deviating. In an unattended run, decide, record, flag.
 - **Taste** is how I like things when it costs nothing. Do it if it's free; never block or argue over it.
 
-A project's own `CLAUDE.md` resolves the defaults into decisions at project start: it says "Logging: stdlib logging (CLI, see decisions.md)", not "Logging: structlog unless...". After that, this file is reference, not an instruction to re-litigate every session.
+A project's own `AGENTS.md` (imported by its `CLAUDE.md`) resolves the defaults into decisions at project start: it says "Logging: stdlib logging (CLI, see decisions.md)", not "Logging: structlog unless...". After that, this file is reference, not an instruction to re-litigate every session.
 
 ---
 
