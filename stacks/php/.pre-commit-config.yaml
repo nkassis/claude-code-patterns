@@ -1,0 +1,24 @@
+# Install once per machine: `uv tool install pre-commit`; once per clone: `pre-commit install --hook-type pre-commit --hook-type pre-push`
+# Append security/.pre-commit-config.yaml's `repos:` entries below.
+repos:
+  # Format and analyse with the versions in composer.lock, so hooks, Claude and CI agree.
+  - repo: local
+    hooks:
+      - id: pint
+        name: pint
+        entry: vendor/bin/pint
+        language: system
+        types: [php]
+      # The paths in phpstan.neon.dist, not the staged files, so it checks what CI checks.
+      - id: phpstan
+        name: phpstan
+        entry: vendor/bin/phpstan analyse --no-progress
+        language: system
+        types: [php]
+        pass_filenames: false
+      - id: pest
+        name: pest
+        entry: vendor/bin/pest
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

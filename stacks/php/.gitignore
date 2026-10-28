@@ -1,0 +1,12 @@
+/vendor/
+/node_modules/
+.phpunit.result.cache
+.phpunit.cache/
+phpstan.neon
+/storage/*.key
+
+# Secrets: never commit env files except the example.
+.env
+.env.*
+!.env.example
+*.local
