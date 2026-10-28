@@ -1,0 +1,8 @@
+# This repo's own hooks: the branch guard from security/.pre-commit-config.yaml.
+# Once per clone: `pre-commit install`
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: no-commit-to-branch
+        args: [--branch, main, --branch, master]
