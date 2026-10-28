@@ -58,12 +58,13 @@ Fill in the `{{placeholders}}` in `AGENTS.md` and `CLAUDE.md`. Record any deviat
 | `rust` | `cargo fmt` | `cargo clippy -D warnings` | fmt, clippy, test |
 | `cpp` | clang-format, clang-tidy (needs `build/compile_commands.json`) | | format, tidy, build, ctest |
 | `react` | Prettier, ESLint | `pnpm typecheck` | `pnpm check`, build |
+| `php` | Pint, PHPStan (Larastan) | `phpstan analyse` | pint, phpstan, pest |
 
 Formatters apply. Lint findings block Claude and are fed back to it. A missing tool warns and does not block.
 
 ## Covered
 
-**Code quality.** Format and lint on every edit, a project-wide check before Claude stops (python, rust, react), the same tools in pre-commit. `AGENTS.md` states what "done" means.
+**Code quality.** Format and lint on every edit, a project-wide check before Claude stops (python, rust, react, php), the same tools in pre-commit. `AGENTS.md` states what "done" means.
 
 **CI.** One GitHub Actions workflow per stack. Actions pinned to release tags, Dependabot to keep the pins current.
 
