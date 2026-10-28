@@ -10,6 +10,7 @@ Per-stack starters for Claude Code projects. Each one states a guardrail once in
 | --- | --- |
 | `stacks/<stack>/` | Starter files for one language |
 | `security/` | Secret scanning, read-deny rules, env hygiene |
+| `github/` | Opt-in branch protection ruleset, see [github/README.md](github/README.md) |
 | `CLAUDE-global.md` | Personal defaults, goes in `~/.claude/CLAUDE.md` |
 | `skills/` | Claude Code skills, go in `~/.claude/skills/` |
 | `rules/` | Path-scoped Claude Code rules, go in a project's `.claude/rules/` |
@@ -79,4 +80,4 @@ These layers catch mistakes. They don't stop someone determined: aliases, script
 
 ## Developing this repo
 
-`AGENTS.md` has the hook contract; `tests/hooks.sh` runs every hook against good and bad fixtures, `tests/install-global.sh` the installer against a fake `$HOME`, `tests/agents-md.sh` checks the AGENTS.md / CLAUDE.md split.
+`AGENTS.md` has the hook contract; `tests/hooks.sh` runs every hook against good and bad fixtures, `tests/install-global.sh` the installer against a fake `$HOME`, `tests/agents-md.sh` checks the AGENTS.md / CLAUDE.md split, `tests/protect.sh` the ruleset script against a stub `gh`.
