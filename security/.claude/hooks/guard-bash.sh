@@ -60,7 +60,8 @@ tokenize() {
         elif [[ "$c" == [\;\&\|$'\n'] ]]; then
             ((have)) && words+=("$word")
             word="" have=0
-            [[ "${#words[@]}" -gt 0 && "${words[-1]}" == ";" ]] || words+=(";")
+            # ${words[-1]} needs bash 4.3; macOS ships 3.2.
+            [[ "${#words[@]}" -gt 0 && "${words[${#words[@]}-1]}" == ";" ]] || words+=(";")
         else
             word+="$c"
             have=1
