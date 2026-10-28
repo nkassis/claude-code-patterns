@@ -46,7 +46,7 @@ pre-commit run --all-files
 
 ### Then, in both cases
 
-Merge `security/.claude/settings.json` and `security/.pre-commit-config.yaml` into the project's copies, and append `security/gitignore-env.txt` to `.gitignore`. In an existing project, also merge anything `--update=none` skipped, such as `AGENTS.md`, `CLAUDE.md` and `.gitignore`. Two stacks in one repo merge the same way; hook scripts have distinct names and coexist.
+Copy `security/.claude/hooks/guard-bash.sh` into the project's `.claude/hooks/`. Merge `security/.claude/settings.json` and `security/.pre-commit-config.yaml` into the project's copies, and append `security/gitignore-env.txt` to `.gitignore`. In an existing project, also merge anything `--update=none` skipped, such as `AGENTS.md`, `CLAUDE.md` and `.gitignore`. Two stacks in one repo merge the same way; hook scripts have distinct names and coexist.
 
 Fill in the `{{placeholders}}` in `AGENTS.md` and `CLAUDE.md`. Record any deviation from `CLAUDE-global.md`'s defaults in `docs/decisions.md`.
 
@@ -61,16 +61,21 @@ For a decision log, copy `rules/decision-log.md` into the project's `.claude/rul
 | `rust` | `cargo fmt` | `cargo clippy -D warnings` | fmt, clippy, test |
 | `cpp` | clang-format, clang-tidy (needs `build/compile_commands.json`) | | format, tidy, build, ctest |
 | `react` | Prettier, ESLint | `pnpm typecheck` | `pnpm check`, build |
+| `php` | Pint, PHPStan (Larastan) | `phpstan analyse` | pint, phpstan, pest |
 
 Formatters apply. Lint findings block Claude and are fed back to it. A missing tool warns and does not block.
 
 ## Covered
 
-**Code quality.** Format and lint on every edit, a project-wide check before Claude stops (python, rust, react), the same tools in pre-commit. `AGENTS.md` states what "done" means.
+**Code quality.** Format and lint on every edit, a project-wide check before Claude stops (python, rust, react, php), the same tools in pre-commit. `AGENTS.md` states what "done" means.
 
 **CI.** One GitHub Actions workflow per stack. Actions pinned to release tags, Dependabot to keep the pins current.
 
-**Security.** TruffleHog on every push and PR, plus `detect-private-key` and large-file checks in pre-commit. Claude is denied reads of `.env` files (not `.env.example`), keys, `~/.ssh` and `~/.aws`, and every project gets a `.env.example` and a gitignore block.
+**Security.** TruffleHog on every push and PR, plus `detect-private-key` and large-file checks in pre-commit. Claude is denied reads of `.env` files (not `.env.example`), keys, `~/.ssh` and `~/.aws`, and every project gets a `.env.example` and a gitignore block. Main and master are guarded locally:
+- A PreToolUse hook blocks Claude from committing on them, pushing to them, force pushing or deleting them.
+- pre-commit `no-commit-to-branch` rejects anyone's commit there.
+
+These layers catch mistakes. They don't stop someone determined: aliases, scripts, `bash -c` and `--no-verify` get past them. A server-side branch ruleset is the gate.
 
 ## Developing this repo
 

@@ -1,0 +1,10 @@
+# Larastan adds Laravel's rules and understands facades, Eloquent and container magic.
+# Not a Laravel project? Drop the include and `composer require --dev phpstan/phpstan` instead.
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    # Larastan's recommended starting level; raise it as the baseline gets clean.
+    level: 5
+    paths:
+        - app/
