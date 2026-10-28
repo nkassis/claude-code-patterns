@@ -49,3 +49,6 @@ jobs:
 
       - name: Installer tests
         run: bash tests/install-global.sh
+
+      - name: AGENTS.md / CLAUDE.md split
+        run: bash tests/agents-md.sh

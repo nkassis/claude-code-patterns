@@ -14,7 +14,7 @@ A README answers two questions fast: what is this, how do I use it. Everything e
 5. A table for the parts that vary (stacks, commands, modules). Tables over prose for anything with more than two columns of fact.
 6. Covered or Scope. One short paragraph per area.
 7. Status, only when the repo is incomplete: what works, what is a stub, what is missing.
-8. Developing this repo. One or two lines pointing at AGENT.md and the tests.
+8. Developing this repo. One or two lines pointing at AGENTS.md and the tests.
 
 ## Rules
 

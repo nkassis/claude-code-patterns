@@ -39,7 +39,7 @@ If something that changes the design is unspecified, ask one question before wri
 
 ## 4. Implement
 
-- Follow the repo's CLAUDE.md conventions and tooling. Read `docs/decisions.md` before changing anything it covers.
+- Follow the repo's AGENTS.md and CLAUDE.md conventions and tooling. Read `docs/decisions.md` before changing anything it covers.
 - Commits are Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `chore:`), one concern each, with `Refs $issue` in the body. No attribution trailers.
 - Add or update tests for every behavior the issue describes.
 - Do not refactor or fix things outside the issue. If you find something worth fixing, note it for the closing comment.
