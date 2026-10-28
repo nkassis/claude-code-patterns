@@ -29,6 +29,13 @@ setup_cpp() {
         "$1" "$2" "$vendor" "$2" >"$1/build/compile_commands.json"
 }
 
+setup_php() {
+    # A project whose PHPStan config covers app/ only, as the starter's does.
+    mkdir -p "$1/app"
+    cp "$fixtures/php/good.php" "$1/app/Clean.php"
+    printf 'parameters:\n    level: 5\n    paths:\n        - app/\n' >"$1/phpstan.neon"
+}
+
 verify_cpp() {
     # The hook applied clang-format, so CI's check must now pass.
     [[ "$1" == *.cpp ]] || return 0
@@ -70,7 +77,7 @@ expect() {
     fi
 }
 
-for stack in python shell rust cpp react; do
+for stack in python shell rust cpp react php; do
     expect "$stack" edit other.txt 0
 done
 
@@ -98,6 +105,13 @@ expect cpp edit cpp/uses-vendor-header.cpp 0 false src
 
 expect react edit react/good.ts 0
 expect react stop - 0 true
+
+expect php edit php/good.php 0 false app
+expect php edit php/bad.php 2 false app
+# Outside the configured paths: CI doesn't analyse it, so neither does the hook.
+expect php edit php/bad.php 0 false tests
+expect php stop php/bad.php 2 false app
+expect php stop - 0 true
 
 # security/.claude/hooks/guard-bash.sh: PreToolUse on Bash. A scratch repo on main with a
 # worktree on a feature branch; each case runs one command line from one of them.
