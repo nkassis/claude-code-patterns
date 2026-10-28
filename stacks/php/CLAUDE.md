@@ -7,7 +7,9 @@
 ## Claude Code hooks
 
 `.claude/hooks/check-php.sh` runs from `.claude/settings.json`:
-- **PostToolUse** (Edit/Write on `.php`): Pint formats the file, then PHPStan analyses it; findings block Claude until fixed.
-- **Stop**: `phpstan analyse` across the project before Claude may finish (skipped when there is no `phpstan.neon` or `phpstan.neon.dist`).
+- **PostToolUse** (Edit/Write on `.php`): Pint formats the file, then `phpstan analyse` runs over the configured paths, as in CI; findings block Claude until fixed.
+- **Stop**: the same `phpstan analyse` before Claude may finish.
+
+Both skip PHPStan when there is no `phpstan.neon` or `phpstan.neon.dist`.
 
 Tools come from `vendor/bin`, falling back to `pint` and `phpstan` on `PATH`. `jq` is used if present, else `python3`.

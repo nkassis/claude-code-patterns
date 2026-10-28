@@ -29,6 +29,13 @@ setup_cpp() {
         "$1" "$2" "$vendor" "$2" >"$1/build/compile_commands.json"
 }
 
+setup_php() {
+    # A project whose PHPStan config covers app/ only, as the starter's does.
+    mkdir -p "$1/app"
+    cp "$fixtures/php/good.php" "$1/app/Clean.php"
+    printf 'parameters:\n    level: 5\n    paths:\n        - app/\n' >"$1/phpstan.neon"
+}
+
 verify_cpp() {
     # The hook applied clang-format, so CI's check must now pass.
     [[ "$1" == *.cpp ]] || return 0
@@ -99,8 +106,11 @@ expect cpp edit cpp/uses-vendor-header.cpp 0 false src
 expect react edit react/good.ts 0
 expect react stop - 0 true
 
-expect php edit php/good.php 0
-expect php edit php/bad.php 2
+expect php edit php/good.php 0 false app
+expect php edit php/bad.php 2 false app
+# Outside the configured paths: CI doesn't analyse it, so neither does the hook.
+expect php edit php/bad.php 0 false tests
+expect php stop php/bad.php 2 false app
 expect php stop - 0 true
 
 printf '\n%d passed, %d failed, %d skipped\n' "$pass" "$fail" "$skip"

@@ -45,10 +45,13 @@ case "$mode" in
         file="$(json_field .tool_input.file_path)"
         [[ "$file" == *.php && -f "$file" ]] || exit 0
         pint="$(tool pint)"
-        phpstan="$(tool phpstan)"
         "$pint" --quiet "$file" >&2 || true
-        if ! out="$("$phpstan" analyse --no-progress --error-format=raw "$file" 2>&1)"; then
-            printf 'phpstan found problems in %s; fix them:\n%s\n' "$file" "$out" >&2
+        # Analyse the configured paths, as CI does, not just this file: a file outside them
+        # (tests/, say) must not block on findings CI never checks.
+        has_phpstan_config || exit 0
+        phpstan="$(tool phpstan)"
+        if ! out="$("$phpstan" analyse --no-progress --error-format=raw 2>&1)"; then
+            printf 'phpstan analyse fails after editing %s; fix it:\n%s\n' "$file" "$out" >&2
             exit 2
         fi
         ;;
