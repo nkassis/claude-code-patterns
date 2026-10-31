@@ -25,6 +25,15 @@ cp .env.example .env.local         # then fill in the placeholders
 | `shellcheck -x --source-path=SCRIPTDIR <file>` | Lint one script |
 | `pre-commit run --all-files` | Every hook against the whole tree |
 
+### Analysis
+
+Run by hand or by a skill, never by a hook, pre-commit or CI: findings are leads to check, not failures. Each tool is a machine tool in this repo's README. No dead-code row: shellcheck SC2034 already reports unused variables.
+
+| Command | What it does |
+| --- | --- |
+| `scc` | Count lines: code, comments and complexity per language; `--by-file --format json` for tooling |
+| `pnpm dlx jscpd@5.4.2 .` | Find duplication: copy-pasted blocks across files |
+
 ## Scripts
 
 | Script | What it does |

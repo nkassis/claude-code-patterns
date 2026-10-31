@@ -15,6 +15,7 @@ When a question is not answered here, stop and ask; do not decide silently. Comm
 
 ```sh
 uv sync
+uv add --dev vulture==2.16 deptry==0.25.1   # once, at project start: the Analysis tools below
 pre-commit install --hook-type pre-commit --hook-type pre-push   # pre-commit itself: `uv tool install pre-commit`, once per machine
 cp .env.example .env    # then fill in the placeholders
 ```
@@ -27,6 +28,16 @@ cp .env.example .env    # then fill in the placeholders
 | `uv run black .` | Format (`--check` in CI) |
 | `uv run pytest` | Tests |
 | `pre-commit run --all-files` | Every hook against the whole tree |
+
+### Analysis
+
+Run by hand or by a skill, never by a hook, pre-commit or CI: findings are leads to check, not failures. `scc` and `jscpd` need the machine tools in this repo's README.
+
+| Command | What it does |
+| --- | --- |
+| `scc` | Count lines: code, comments and complexity per language; `--by-file --format json` for tooling |
+| `uv run vulture . --exclude .venv`, `uv run deptry .` | Find dead code: unused functions, classes and variables; unused or missing dependencies |
+| `pnpm dlx jscpd@5.4.2 .` | Find duplication: copy-pasted blocks across files |
 
 ## Guardrails (enforced, not optional)
 

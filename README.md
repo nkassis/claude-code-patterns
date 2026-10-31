@@ -21,6 +21,15 @@ How it works: [docs/how-it-works.md](docs/how-it-works.md)
 
 Prerequisites: `uv`, `jq` or `python3`, `trufflehog`, and the stack's own tools (see the table below). Commands run from a clone of this repo.
 
+Analysis tools, named in each stack's `AGENTS.md` under Analysis and never run by a hook or CI, need these on the machine (per-project ones are pinned by the stack's Setup):
+
+| Tool | For | Install |
+| --- | --- | --- |
+| `scc` v3.7.0 | line counts and complexity, every stack | `go install github.com/boyter/scc/v3@v3.7.0` |
+| Node and `pnpm` | `jscpd` duplication, every stack, run as `pnpm dlx jscpd@5.4.2` | `corepack enable pnpm` |
+| `cargo-machete` 0.9.2 | rust dead dependencies | `cargo install cargo-machete --version 0.9.2 --locked` |
+| `cppcheck` 2.17+ | cpp unused functions | `sudo apt install cppcheck` or `brew install cppcheck` |
+
 ### Once per machine
 
 ```sh
