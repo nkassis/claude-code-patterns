@@ -21,5 +21,7 @@ jobs:
         run: uv run ruff check .
       - name: Format
         run: uv run black --check .
+      - name: Type check
+        run: uv run mypy .
       - name: Test
         run: uv run pytest
