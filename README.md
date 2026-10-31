@@ -62,6 +62,8 @@ Fill in the `{{placeholders}}` in `AGENTS.md` and `CLAUDE.md`. Record any deviat
 
 For a decision log, copy `rules/decision-log.md` into the project's `.claude/rules/`. At a real fork it has agents run `/decide`, which asks you and writes the entry.
 
+Before a PR, spec or report leaves your hands, `/blind-review` has a fresh subagent review it against the brief, without the conversation; other skills can call it as a gate.
+
 ## Stacks
 
 | Stack | On edit | On stop | pre-commit and CI |
