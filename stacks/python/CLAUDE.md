@@ -8,6 +8,6 @@
 
 `.claude/hooks/check-python.sh` runs from `.claude/settings.json`:
 - **PostToolUse** (Edit/Write): Black formats the file, then Ruff lints it; findings block Claude until fixed.
-- **Stop**: `ruff check .` across the project before Claude may finish.
+- **Stop**: `ruff check .` and `mypy .` across the project before Claude may finish.
 
 Without `pyproject.toml` the hook falls back to `uvx` (ad-hoc tool versions). Needs `uv`; `jq` is used if present, else `python3`.

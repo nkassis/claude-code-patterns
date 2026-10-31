@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Claude Code hook: enforce Black + Ruff on Python files.
+# Claude Code hook: enforce Black + Ruff on Python files, and mypy on the project.
 #   check-python.sh edit  -> PostToolUse: format the edited file, then lint it
-#   check-python.sh stop  -> Stop: lint the whole project before Claude finishes
+#   check-python.sh stop  -> Stop: lint and type-check the whole project before Claude finishes
 # Exit 2 blocks and feeds stderr back to Claude; exit 1 is a non-blocking warning.
 set -euo pipefail
 
@@ -58,6 +58,10 @@ case "$mode" in
         require_uv
         if ! out="$(run ruff check --quiet . 2>&1)"; then
             printf 'ruff check . fails; fix before finishing:\n%s\n' "$out" >&2
+            exit 2
+        fi
+        if ! out="$(run mypy . 2>&1)"; then
+            printf 'mypy . fails; fix before finishing:\n%s\n' "$out" >&2
             exit 2
         fi
         ;;

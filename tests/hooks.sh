@@ -14,7 +14,7 @@ skip=0
 scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 
-# Optional per-stack hooks: setup_<stack> <project> <target> prepares the scratch project;
+# Optional per-stack hooks: setup_<stack> <project> <target> <mode> prepares the scratch project;
 # verify_<stack> <target> checks the file after a passing (exit 0) run.
 setup_cpp() {
     # Lint with the starter's real configs and a compile database, as a configured project would.
@@ -29,11 +29,25 @@ setup_cpp() {
         "$1" "$2" "$vendor" "$2" >"$1/build/compile_commands.json"
 }
 
+setup_python() {
+    # Stop runs in a uv project only. Give it one with the starter's mypy.ini and the dev tools
+    # it calls; uv resolves them on first run. Edit cases stay project-less (the uvx fallback).
+    [[ "$3" == stop && -n "$2" ]] || return 0
+    cp "$repo/stacks/python/mypy.ini" "$1/"
+    local mypy
+    mypy="$(grep -o 'mypy==[0-9.]*' "$repo/stacks/python/AGENTS.md")"
+    printf '[project]\nname = "fixture"\nversion = "0"\nrequires-python = ">=3.10"\ndependencies = ["pydantic"]\n\n[dependency-groups]\ndev = ["ruff", "%s"]\n\n[tool.uv]\npackage = false\n' \
+        "$mypy" >"$1/pyproject.toml"
+}
+
 setup_php() {
-    # A project whose PHPStan config covers app/ only, as the starter's does.
+    # A project whose PHPStan config covers app/ only, at the starter's level. Larastan's
+    # include is left out: the fixtures aren't a Laravel app.
+    local level
+    level="$(sed -n 's/^ *level: *//p' "$repo/stacks/php/phpstan.neon.dist")"
     mkdir -p "$1/app"
     cp "$fixtures/php/good.php" "$1/app/Clean.php"
-    printf 'parameters:\n    level: 5\n    paths:\n        - app/\n' >"$1/phpstan.neon"
+    printf 'parameters:\n    level: %s\n    paths:\n        - app/\n' "$level" >"$1/phpstan.neon"
 }
 
 verify_cpp() {
@@ -56,7 +70,7 @@ expect() {
         cp "$fixtures/$fixture" "$target"
     fi
     if declare -F "setup_$stack" >/dev/null; then
-        "setup_$stack" "$project" "$target"
+        "setup_$stack" "$project" "$target" "$mode"
     fi
     input="$(printf '{"tool_name":"Write","tool_input":{"file_path":"%s"},"stop_hook_active":%s}' "$target" "$active")"
     err="$(CLAUDE_PROJECT_DIR="$project" "$hook" "$mode" <<<"$input" 2>&1 >/dev/null)" || got=$?
@@ -84,6 +98,10 @@ done
 expect python edit python/good.py 0
 expect python edit python/bad.py 2
 expect python stop - 0 true
+# mypy strict on Stop: a clean project (Pydantic plugin loaded) passes; an unannotated def blocks.
+expect python stop python/good.py 0
+expect python stop python/model.py 0
+expect python stop python/untyped.py 2
 
 expect shell edit shell/good.sh 0
 expect shell edit shell/bad.sh 2
@@ -108,6 +126,9 @@ expect react stop - 0 true
 
 expect php edit php/good.php 0 false app
 expect php edit php/bad.php 2 false app
+# AGENTS.md requires parameter and return types; the starter's level must report them.
+expect php edit php/untyped-method.php 2 false app
+expect php stop php/untyped-method.php 2 false app
 # Outside the configured paths: CI doesn't analyse it, so neither does the hook.
 expect php edit php/bad.php 0 false tests
 expect php stop php/bad.php 2 false app

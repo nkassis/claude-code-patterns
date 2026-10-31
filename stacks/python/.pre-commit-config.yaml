@@ -14,6 +14,12 @@ repos:
         entry: uv run black
         language: system
         types: [python]
+      - id: mypy
+        name: mypy
+        entry: uv run mypy .
+        language: system
+        pass_filenames: false
+        stages: [pre-push]
       - id: pytest
         name: pytest
         entry: uv run pytest -q
