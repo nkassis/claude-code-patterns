@@ -30,10 +30,13 @@ setup_cpp() {
 }
 
 setup_php() {
-    # A project whose PHPStan config covers app/ only, as the starter's does.
+    # A project whose PHPStan config covers app/ only, at the starter's level. Larastan's
+    # include is left out: the fixtures aren't a Laravel app.
+    local level
+    level="$(sed -n 's/^ *level: *//p' "$repo/stacks/php/phpstan.neon.dist")"
     mkdir -p "$1/app"
     cp "$fixtures/php/good.php" "$1/app/Clean.php"
-    printf 'parameters:\n    level: 5\n    paths:\n        - app/\n' >"$1/phpstan.neon"
+    printf 'parameters:\n    level: %s\n    paths:\n        - app/\n' "$level" >"$1/phpstan.neon"
 }
 
 verify_cpp() {
@@ -108,6 +111,9 @@ expect react stop - 0 true
 
 expect php edit php/good.php 0 false app
 expect php edit php/bad.php 2 false app
+# AGENTS.md requires parameter and return types; the starter's level must report them.
+expect php edit php/untyped-method.php 2 false app
+expect php stop php/untyped-method.php 2 false app
 # Outside the configured paths: CI doesn't analyse it, so neither does the hook.
 expect php edit php/bad.php 0 false tests
 expect php stop php/bad.php 2 false app

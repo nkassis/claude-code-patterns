@@ -4,7 +4,8 @@ includes:
     - vendor/larastan/larastan/extension.neon
 
 parameters:
-    # Larastan's recommended starting level; raise it as the baseline gets clean.
-    level: 5
+    # Level 6 is the lowest that reports missing parameter and return types, which AGENTS.md
+    # requires on every function and method. Raise it as the baseline gets clean.
+    level: 6
     paths:
         - app/
