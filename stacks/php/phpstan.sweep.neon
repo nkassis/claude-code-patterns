@@ -1,0 +1,12 @@
+# Dead-code analysis: `vendor/bin/phpstan analyse -c phpstan.sweep.neon`. Not a gate; run by hand
+# or by a skill. The hook, pre-commit and CI use phpstan.neon.dist, which this file extends.
+# With phpstan/extension-installer the detector would also load into phpstan.neon.dist; list
+# shipmonk/dead-code-detector under extra.phpstan/extension-installer.ignore in composer.json.
+includes:
+    - phpstan.neon.dist
+    - vendor/shipmonk/dead-code-detector/rules.neon
+
+parameters:
+    # Appended to the paths in phpstan.neon.dist, so code used only by tests is not reported.
+    paths:
+        - tests/

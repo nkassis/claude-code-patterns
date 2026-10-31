@@ -16,6 +16,7 @@ When a question is not answered here, stop and ask; do not decide silently. Comm
 
 ```sh
 composer install
+composer require --dev shipmonk/dead-code-detector:1.4.2   # once, at project start: the Analysis tools below
 pre-commit install --hook-type pre-commit --hook-type pre-push   # pre-commit itself: `uv tool install pre-commit`, once per machine
 cp .env.example .env    # then fill in the placeholders
 php artisan key:generate
@@ -29,6 +30,16 @@ php artisan key:generate
 | `vendor/bin/phpstan analyse` | Static analysis at the level in `phpstan.neon.dist` |
 | `vendor/bin/pest` | Tests |
 | `pre-commit run --all-files` | Every hook against the whole tree |
+
+### Analysis
+
+Run by hand or by a skill, never by a hook, pre-commit or CI: findings are leads to check, not failures. `scc` and `jscpd` need the machine tools in this repo's README.
+
+| Command | What it does |
+| --- | --- |
+| `scc` | Count lines: code, comments and complexity per language; `--by-file --format json` for tooling |
+| `vendor/bin/phpstan analyse -c phpstan.sweep.neon` | Find dead code: unused classes, methods and constants, with `tests/` analysed so test-only use counts (`phpstan.neon.dist`, which the hook uses, is unchanged) |
+| `pnpm dlx jscpd@5.4.2 .` | Find duplication: copy-pasted blocks across files |
 
 ## Guardrails (enforced, not optional)
 

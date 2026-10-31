@@ -27,6 +27,16 @@ pre-commit install --hook-type pre-commit --hook-type pre-push   # pre-commit it
 | `cargo test` | Tests |
 | `cargo run -- <args>` | Run the CLI |
 
+### Analysis
+
+Run by hand or by a skill, never by a hook, pre-commit or CI: findings are leads to check, not failures. Each tool is a machine tool in this repo's README.
+
+| Command | What it does |
+| --- | --- |
+| `scc` | Count lines: code, comments and complexity per language; `--by-file --format json` for tooling |
+| `cargo machete` | Find dead code: unused crates in `Cargo.toml` (Clippy with `-D warnings` already rejects dead private code) |
+| `pnpm dlx jscpd@5.4.2 .` | Find duplication: copy-pasted blocks across files |
+
 ## Guardrails (enforced, not optional)
 
 | Rule | Claude hook | pre-commit | CI |

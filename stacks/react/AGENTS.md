@@ -22,6 +22,7 @@ Commands run from the repo root. Package manager is {{pnpm}}; do not use npm or 
 ```sh
 {{pnpm}} install --frozen-lockfile
 {{pnpm}} exec playwright install chromium    # first time only
+{{pnpm}} add -D -E knip@6.44.0               # once, at project start: the Analysis tools below
 cp .env.example .env.local                   # then fill in the placeholders
 ```
 
@@ -41,6 +42,16 @@ Node version is pinned in `.nvmrc` / `package.json#engines`; use it.
 | `{{pnpm}} e2e` | Playwright against a built app; `e2e:ui` to debug |
 | `{{pnpm}} check` | typecheck + lint + format:check + test; what CI runs |
 | `{{pnpm}} gen:types` | Regenerate `src/api/generated/` from `{{schema source}}`; CI fails on drift |
+
+### Analysis
+
+Run by hand or by a skill, never by a hook, pre-commit or CI: findings are leads to check, not failures. `scc` and `jscpd` need the machine tools in this repo's README.
+
+| Command | What it does |
+| --- | --- |
+| `scc` | Count lines: code, comments and complexity per language; `--by-file --format json` for tooling |
+| `{{pnpm}} exec knip` | Find dead code: unused files, exports and dependencies across the project (ESLint sees one file at a time) |
+| `pnpm dlx jscpd@5.4.2 --ignore '**/pnpm-lock.yaml' .` | Find duplication: copy-pasted blocks across files (the lockfile is committed, so ignore it by name) |
 
 ## Guardrails (enforced, not optional)
 

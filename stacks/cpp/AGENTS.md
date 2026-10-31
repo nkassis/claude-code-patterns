@@ -27,6 +27,16 @@ pre-commit install --hook-type pre-commit --hook-type pre-push   # pre-commit it
 | `run-clang-tidy -p build 'src/\|include/'` | Lint project translation units (not deps) |
 | `git ls-files '*.cpp' '*.hpp' \| xargs clang-format -i` | Format |
 
+### Analysis
+
+Run by hand or by a skill, never by a hook, pre-commit or CI: findings are leads to check, not failures. Each tool is a machine tool in this repo's README.
+
+| Command | What it does |
+| --- | --- |
+| `scc` | Count lines: code, comments and complexity per language; `--by-file --format json` for tooling |
+| `cppcheck --project=build/compile_commands.json --file-filter='src/*' --enable=unusedFunction --quiet` | Find dead code: functions never called across the project's translation units (needs a configured build) |
+| `pnpm dlx jscpd@5.4.2 .` | Find duplication: copy-pasted blocks across files |
+
 ## Guardrails (enforced, not optional)
 
 | Rule | Claude hook | pre-commit | CI |
