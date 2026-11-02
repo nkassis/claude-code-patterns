@@ -9,7 +9,7 @@ Tooling for working on this repo (the templates themselves). Commands run from t
 - `skills/<name>/SKILL.md`: global Claude Code skills. `install-global.sh` symlinks each one, and `CLAUDE-global.md`, into `~/.claude/`; run it from the main clone (it refuses in a worktree, whose links would dangle after removal). A real file at a target is skipped (exit 1) unless `--force`, which moves it to `<target>.bak`.
 - `github/protect.sh`: branch protection as a ruleset on a project's default branch. Opt-in, like every layer that changes state on an external service: never run by default, only by hand or an explicit flag.
 - `rules/<name>.md`: path-scoped Claude Code rules, copied by hand into a project's `.claude/rules/`; not installed globally. `rules/decision-log.md` comes from moriarty and tells agents when to run the `decide` skill.
-- `tests/hooks.sh` + `tests/fixtures/<stack>/`: hook script tests. `tests/install-global.sh`: installer tests against a fake `$HOME`. `tests/agents-md.sh`: the AGENTS.md / CLAUDE.md split in every stack. `tests/protect.sh`: `protect.sh` against a stub `gh`.
+- `tests/hooks.sh` + `tests/fixtures/<stack>/`: hook script tests. `tests/install-global.sh`: installer tests against a fake `$HOME`. `tests/agents-md.sh`: the AGENTS.md / CLAUDE.md split in every stack. `tests/protect.sh`: `protect.sh` against a stub `gh`. `tests/readme-lint.sh` + `tests/fixtures/readme/bad/`: the readme skill's lint; the fixture breaks each rule once, so a new rule gets one new violation there and one `finds` line.
 
 CI job `name:`s are required-check contexts: `ci-<stack>` in the stacks, `secret-scan` for the scan, `ci` here. Keep them (`docs/decisions.md`).
 
@@ -19,12 +19,13 @@ CI job `name:`s are required-check contexts: `ci-<stack>` in the stacks, `secret
 
 | Command | What it does |
 | --- | --- |
-| `shellcheck install-global.sh github/*.sh stacks/*/.claude/hooks/*.sh security/.claude/hooks/*.sh tests/*.sh` | Every script here must be shellcheck-clean |
+| `shellcheck install-global.sh github/*.sh skills/*/*.sh stacks/*/.claude/hooks/*.sh security/.claude/hooks/*.sh tests/*.sh` | Every script here must be shellcheck-clean |
 | `actionlint .github/workflows/*.yml stacks/*/.github/workflows/*.yml security/.github/workflows/*.yml` | Lints every workflow, including the templates that only run once copied into a project. CI pins v1.7.7. |
 | `bash tests/install-global.sh` | Runs the installer against a fake `$HOME`: clean, re-run, existing file with and without `--force`, stale symlink, worktree. Exits non-zero on any FAIL. |
 | `bash tests/agents-md.sh` | Every stack has `AGENTS.md`, its `CLAUDE.md` imports it with `@AGENTS.md`, no non-blank line is in both, `AGENTS.md` has an `### Analysis` block (at most three rows: count lines with `scc`, find duplication with `jscpd`, and the stack's dead-code tool, which the script names per stack), and no tracked file outside `docs/decisions.md` names the old singular file. |
 | `bash tests/hooks.sh` | Runs each `check-<stack>.sh` with fake hook JSON against good/bad fixtures, `guard-bash.sh` against blocked and allowed command lines in a scratch repo, and `no-commit-to-branch` against a real commit on main. PASS/FAIL per case; SKIP when that stack's linter, or `pre-commit`, isn't installed. Exits non-zero on any FAIL. |
 | `bash tests/protect.sh` | Runs `github/protect.sh` against a stub `gh`: check discovery, the JSON sent, create vs update, `--off`/`--on`, the plan-limit error, the python3 fallback. Exits non-zero on any FAIL. |
+| `bash tests/readme-lint.sh` | Runs `skills/readme/readme-lint.sh` on `README.md`, `security/README.md` and `github/README.md` (must be clean) and on the bad fixture (exactly one finding per rule). pre-commit runs the lint itself on any `.md` change. |
 
 ## Guarding main here
 
