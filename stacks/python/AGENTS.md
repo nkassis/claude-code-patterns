@@ -33,7 +33,7 @@ cp .env.example .env    # then fill in the placeholders
 
 ### Analysis
 
-Run by hand or by a skill, never by a hook, pre-commit or CI: findings are leads to check, not failures. `scc` and `jscpd` need the machine tools in this repo's README.
+Run by hand or by a skill, never by a hook, pre-commit or CI: findings are leads to check, not failures. `scc` and `jscpd` need the machine tools in this repo's `docs/analysis-tools.md`.
 
 | Command | What it does |
 | --- | --- |
@@ -63,3 +63,4 @@ If a hook blocks you, fix the reported problem. Do not add `# noqa`, `# type: ig
 - Never hardcode secrets. Config comes from env (`.env` locally, `.env.example` documents it).
 - Small, single-responsibility functions; modules importable and testable in isolation.
 - A bug fix comes with the test that would have caught it. If a test fails, say whether the code or the test is wrong before changing either.
+- A new script, check, command or module gets one row in README's table and its own page under `docs/` (see the readme skill for the layout). Rationale and design notes go in that page or `docs/decisions.md`, never in README.

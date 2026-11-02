@@ -6,3 +6,12 @@ repos:
     hooks:
       - id: no-commit-to-branch
         args: [--branch, main, --branch, master]
+  # The readme skill's lint over this repo's three READMEs and their docs/.
+  - repo: local
+    hooks:
+      - id: readme-lint
+        name: readme-lint
+        entry: bash -c 'rc=0; for r in README.md security/README.md github/README.md; do skills/readme/readme-lint.sh "$r" || rc=1; done; exit "$rc"'
+        language: system
+        files: \.md$
+        pass_filenames: false

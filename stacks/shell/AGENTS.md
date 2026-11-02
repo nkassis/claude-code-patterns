@@ -27,7 +27,7 @@ cp .env.example .env.local         # then fill in the placeholders
 
 ### Analysis
 
-Run by hand or by a skill, never by a hook, pre-commit or CI: findings are leads to check, not failures. Each tool is a machine tool in this repo's README. No dead-code row: shellcheck SC2034 already reports unused variables.
+Run by hand or by a skill, never by a hook, pre-commit or CI: findings are leads to check, not failures. Each tool is a machine tool in this repo's `docs/analysis-tools.md`. No dead-code row: shellcheck SC2034 already reports unused variables.
 
 | Command | What it does |
 | --- | --- |
@@ -59,4 +59,4 @@ Every script passes `shellcheck -x`, and has been run once against a real or dry
 - Deviating from a global default (a library, tool or pattern)? In an interactive session, ask first; unattended, decide. Either way, add one line to `docs/decisions.md` (date, what, why) and flag it in the PR. Read that file before changing a choice it records.
 - Quote every expansion. Use arrays for argument lists, never word-split strings.
 - `mktemp` + `trap 'rm -rf …' EXIT` for temp files.
-- New scripts are documented in `README.md` (humans) and `AGENTS.md` (agents).
+- A new script, check, command or module gets one row in README's table and its own page under `docs/` (see the readme skill for the layout). Rationale and design notes go in that page or `docs/decisions.md`, never in README.

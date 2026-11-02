@@ -12,22 +12,20 @@ Baseline secret-hygiene layer. Add it to every project, whatever the stack.
 | `gitignore-env.txt` | The env/secret ignore block, for retrofitting an existing `.gitignore`. The stack starters already include it. |
 | `.env.example` | Placeholder pattern: every variable the project reads, no real values. |
 
-## Applying
+## Use
 
-- Copy `.github/` as is. If the stack already has `.github/workflows/ci.yml`, the files sit side by side.
+```sh
+cp -r security/.github ~/projects/x/   # sits beside the stack's .github/workflows/ci.yml
+mkdir -p ~/projects/x/.claude/hooks && cp security/.claude/hooks/guard-bash.sh ~/projects/x/.claude/hooks/
+```
+
 - Append this `.pre-commit-config.yaml`'s `repos:` entries to the stack's.
-- Copy `.claude/hooks/guard-bash.sh` into the project's `.claude/hooks/`.
 - Merge `.claude/settings.json`: add `permissions`, and add its `PreToolUse` entry beside the stack's `PostToolUse` under `hooks`.
+- The pre-commit TruffleHog hook uses the system binary: install `trufflehog` locally (https://github.com/trufflesecurity/trufflehog#installation).
 
 ## Guarding main
 
-Two local layers stop work from landing on main or master:
-
-- `guard-bash.sh` stops Claude before the command runs.
-- `no-commit-to-branch` stops any commit there, whoever makes it.
-
-Both catch mistakes. They are not a security boundary. The guard reads the command line, so an alias, a script or `bash -c` gets past it, and `git commit --no-verify` skips pre-commit. The real gate is a branch ruleset on the server. Set one wherever the plan allows it. Repos without one, such as private repos on GitHub's free plan, still get these two layers.
-- The pre-commit TruffleHog hook uses the system binary: install `trufflehog` locally (https://github.com/trufflesecurity/trufflehog#installation).
+`guard-bash.sh` stops Claude before the command runs, and `no-commit-to-branch` stops any commit on main or master, whoever makes it. Both catch mistakes and are not a security boundary: [docs/guarding-main.md](docs/guarding-main.md).
 
 ## Full-history scan
 
