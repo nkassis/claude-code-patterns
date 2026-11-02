@@ -27,7 +27,7 @@ cp .env.example .env.local         # then fill in the placeholders
 
 ### Analysis
 
-Run by hand or by a skill, never by a hook, pre-commit or CI: findings are leads to check, not failures. Each tool is a machine tool in this repo's README. No dead-code row: shellcheck SC2034 already reports unused variables.
+Run by hand or by a skill, never by a hook, pre-commit or CI: findings are leads to check, not failures. Each tool is a machine tool in this repo's `docs/analysis-tools.md`. No dead-code row: shellcheck SC2034 already reports unused variables.
 
 | Command | What it does |
 | --- | --- |

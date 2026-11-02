@@ -29,7 +29,7 @@ pre-commit install --hook-type pre-commit --hook-type pre-push   # pre-commit it
 
 ### Analysis
 
-Run by hand or by a skill, never by a hook, pre-commit or CI: findings are leads to check, not failures. Each tool is a machine tool in this repo's README.
+Run by hand or by a skill, never by a hook, pre-commit or CI: findings are leads to check, not failures. Each tool is a machine tool in this repo's `docs/analysis-tools.md`.
 
 | Command | What it does |
 | --- | --- |

@@ -33,7 +33,7 @@ php artisan key:generate
 
 ### Analysis
 
-Run by hand or by a skill, never by a hook, pre-commit or CI: findings are leads to check, not failures. `scc` and `jscpd` need the machine tools in this repo's README.
+Run by hand or by a skill, never by a hook, pre-commit or CI: findings are leads to check, not failures. `scc` and `jscpd` need the machine tools in this repo's `docs/analysis-tools.md`.
 
 | Command | What it does |
 | --- | --- |

@@ -11,24 +11,14 @@ Per-stack starters for Claude Code projects. Each one states a guardrail once in
 | `stacks/<stack>/` | Starter files for one language |
 | `security/` | Secret scanning, read-deny rules, env hygiene |
 | `github/` | Opt-in branch protection ruleset, see [github/README.md](github/README.md) |
-| `CLAUDE-global.md` | Personal defaults, goes in `~/.claude/CLAUDE.md` |
-| `skills/` | Claude Code skills, go in `~/.claude/skills/` |
+| `CLAUDE-global.md`, `skills/` | Personal defaults and Claude Code skills, linked into `~/.claude/` |
 | `rules/` | Path-scoped Claude Code rules, go in a project's `.claude/rules/` |
 
 How it works: [docs/how-it-works.md](docs/how-it-works.md)
 
 ## Use
 
-Prerequisites: `uv`, `jq` or `python3`, `trufflehog`, and the stack's own tools (see the table below). Commands run from a clone of this repo.
-
-Analysis tools, named in each stack's `AGENTS.md` under Analysis and never run by a hook or CI, need these on the machine (per-project ones are pinned by the stack's Setup):
-
-| Tool | For | Install |
-| --- | --- | --- |
-| `scc` v3.7.0 | line counts and complexity, every stack | `go install github.com/boyter/scc/v3@v3.7.0` |
-| Node and `pnpm` | `jscpd` duplication, every stack, run as `pnpm dlx jscpd@5.4.2` | `corepack enable pnpm` |
-| `cargo-machete` 0.9.2 | rust dead dependencies | `cargo install cargo-machete --version 0.9.2 --locked` |
-| `cppcheck` 2.17+ | cpp unused functions | `sudo apt install cppcheck` or `brew install cppcheck` |
+Prerequisites: `uv`, `jq` or `python3`, `trufflehog`, and the stack's own tools (see the table below). Commands run from a clone of this repo. Analysis tools need more: [docs/analysis-tools.md](docs/analysis-tools.md).
 
 ### Once per machine
 
@@ -56,7 +46,11 @@ pre-commit run --all-files
 
 ### Then, in both cases
 
-Copy `security/.claude/hooks/guard-bash.sh` into the project's `.claude/hooks/`. Merge `security/.claude/settings.json` and `security/.pre-commit-config.yaml` into the project's copies, and append `security/gitignore-env.txt` to `.gitignore`. In an existing project, also merge anything `--update=none` skipped, such as `AGENTS.md`, `CLAUDE.md` and `.gitignore`. Two stacks in one repo merge the same way; hook scripts have distinct names and coexist.
+- Copy `security/.claude/hooks/guard-bash.sh` into the project's `.claude/hooks/`.
+- Merge `security/.claude/settings.json` and `security/.pre-commit-config.yaml` into the project's copies, and append `security/gitignore-env.txt` to `.gitignore`.
+- In an existing project, also merge anything `--update=none` skipped, such as `AGENTS.md`, `CLAUDE.md` and `.gitignore`.
+
+Two stacks in one repo merge the same way; hook scripts have distinct names and coexist.
 
 Fill in the `{{placeholders}}` in `AGENTS.md` and `CLAUDE.md`. Record any deviation from `CLAUDE-global.md`'s defaults in `docs/decisions.md`.
 
@@ -91,4 +85,4 @@ These layers catch mistakes. They don't stop someone determined: aliases, script
 
 ## Developing this repo
 
-`AGENTS.md` has the hook contract; `tests/hooks.sh` runs every hook against good and bad fixtures, `tests/install-global.sh` the installer against a fake `$HOME`, `tests/agents-md.sh` checks the AGENTS.md / CLAUDE.md split, `tests/protect.sh` the ruleset script against a stub `gh`.
+`AGENTS.md` has the hook contract; `tests/hooks.sh` runs every hook against good and bad fixtures, `tests/install-global.sh` the installer against a fake `$HOME`, `tests/agents-md.sh` checks the AGENTS.md / CLAUDE.md split, `tests/protect.sh` the ruleset script against a stub `gh`, `tests/readme-lint.sh` the readme lint against a fixture. Design choices: [docs/decisions.md](docs/decisions.md).
