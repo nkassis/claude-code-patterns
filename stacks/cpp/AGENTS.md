@@ -68,3 +68,4 @@ Fix clang-tidy findings; do not add `NOLINT` without a comment saying why.
 - Small `CMakeLists.txt` edits are fine; flag any significant restructuring for review first.
 - No new third-party library without asking.
 - Explicit types; when `auto` is unavoidable, add `// inferred: …`.
+- A new script, check, command or module gets one row in README's table and its own page under `docs/` (see the readme skill for the layout). Rationale and design notes go in that page or `docs/decisions.md`, never in README.

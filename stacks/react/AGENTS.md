@@ -92,6 +92,7 @@ A file holds one component. A component is under {{150}} lines; split by behavio
 - **No premature abstraction.** Two similar components are fine. Extract on the third use, not the second.
 - **Performance work needs a measurement.** No `memo`, `useCallback` or virtualisation without a profiler trace or a test that shows the problem.
 - **No new dependency without saying why in the PR**, and never one that duplicates something already in `package.json`.
+- A new script, check, command or module gets one row in README's table and its own page under `docs/` (see the readme skill for the layout). Rationale and design notes go in that page or `docs/decisions.md`, never in README.
 
 ## Testing
 
