@@ -1,6 +1,6 @@
 ---
 name: readme
-description: Use when writing or revising a README.md. Commands first, principles elsewhere, no filler.
+description: Use when writing or revising README.md, and when a change adds a feature, command or component that needs documenting. Commands first, feature pages under docs/, a lint to check the budget.
 ---
 
 A README answers two questions fast: what is this, how do I use it. Everything else lives in docs/ and is linked once.
@@ -29,8 +29,53 @@ A README answers two questions fast: what is this, how do I use it. Everything e
 - Placeholders are written as {{placeholder}} and listed once under the command that needs them filled.
 - When a command will change soon (a tool not yet built), write the current command and nothing about the future one.
 
+## Size budget
+
+- README under 100 lines and under 10 KB (10240 bytes).
+- A section about one feature is at most one table row plus one link.
+- If a section needs a second paragraph, it is a docs page.
+
+## Where things go
+
+Consult this whenever a change adds or explains something.
+
+| Content | Goes in |
+| --- | --- |
+| Command to run | README |
+| What a feature checks or does | Its docs page |
+| Why it is designed that way | Its docs page, or `docs/decisions.md` |
+| Flags, output modes, exit codes | `docs/usage.md` |
+| Config file keys | `docs/config.md` |
+| Test seams, fixture regeneration, hook contracts | `AGENTS.md` |
+| Recovery procedure | `docs/recovery.md` |
+| Roadmap | Issue tracker |
+
+## docs/ layout
+
+| Page | Holds |
+| --- | --- |
+| `docs/usage.md` | Flags, output modes, exit codes |
+| `docs/<feature>/<name>.md` or `docs/<topic>.md` | One page per feature or component, named after the thing as the CLI or README table names it |
+| `docs/config.md` | The config file, when there is one |
+| `docs/recovery.md` or `docs/troubleshooting.md` | How to undo or repair, when a tool can break something |
+| `docs/development.md` | Contributor material that is not agent instructions. Agent instructions stay in `AGENTS.md`, linked, not duplicated |
+| `docs/decisions.md` | Deviations and design choices, as `CLAUDE-global.md` requires |
+
+Each page starts with one sentence saying what it covers and who it is for. Every top-level page is linked from README or another docs page.
+
+## Cross-links from the tool
+
+When a program prints findings or help text, each refers to its docs page by path (`see docs/checks/firewall.md`). Docs are then reachable from the terminal, not only from GitHub.
+
 ## Check before finishing
 
-- Read the first 25 lines as a stranger. Can they tell what it is and type the first command?
-- Count paragraphs over three sentences. Should be zero.
-- Search for "—". Should be zero.
+Run the lint from the project root. It checks the size budget, the first command block, paragraph length, banned headings, em dashes, relative links and orphan docs pages, and exits 1 with one line per finding.
+
+```sh
+~/.claude/skills/readme/readme-lint.sh README.md      # installed by install-global.sh
+skills/readme/readme-lint.sh README.md                # from a claude-code-patterns checkout
+```
+
+Decision logs (`docs/decisions*.md`) are exempt from the em-dash check only. A project can wire the lint into pre-commit as a local hook.
+
+Then read the first 25 lines as a stranger. Can they tell what it is and type the first command? The lint cannot judge that.
