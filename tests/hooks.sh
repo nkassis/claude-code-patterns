@@ -204,26 +204,76 @@ else
     fail=$((fail + 1))
 fi
 
-# Stop's input has no file path: the edit hook records the subdirectory and Stop checks it there.
-if ready_astro; then
-    astro_nested="$scratch/astro-nested"
-    mkdir -p "$astro_nested/site/src"
-    cp "$fixtures/astro/stop-fail/package.json" "$astro_nested/site/"
-    cp "$fixtures/astro/good.astro" "$astro_nested/site/src/"
-    setup_astro "$astro_nested" "$astro_nested/site/src/good.astro" edit
-    astro_input="$(printf '{"tool_input":{"file_path":"%s"}}' "$astro_nested/site/src/good.astro")"
-    CLAUDE_PROJECT_DIR="$astro_nested" "$astro_hook" edit <<<"$astro_input" >/dev/null 2>&1 || true
-    got=0
-    CLAUDE_PROJECT_DIR="$astro_nested" "$astro_hook" stop <<<'{}' >/dev/null 2>&1 || got=$?
-    if [[ "$got" == 2 ]]; then
-        printf 'PASS  astro stop runs check in the subdirectory the edit hook recorded\n'
+# astro_edit <project> <file>: run the edit hook, which records the file's package for Stop.
+astro_edit() {
+    local input
+    input="$(printf '{"tool_input":{"file_path":"%s"}}' "$2")"
+    CLAUDE_PROJECT_DIR="$1" "$astro_hook" edit <<<"$input" >/dev/null 2>&1 || true
+}
+
+# astro_stop_after_edits <label> <root fixture|-> <site fixture> <expected exit>: edit a file in
+# the root package (when there is one), then one in site/, then run Stop on the project.
+astro_stop_after_edits() {
+    local label="$1" root_fixture="$2" site_fixture="$3" want="$4" got=0
+    local project="$scratch/astro-after-edits-${label// /-}"
+    mkdir -p "$project/site/src"
+    cp "$fixtures/astro/$site_fixture/package.json" "$project/site/"
+    cp "$fixtures/astro/good.astro" "$project/site/src/"
+    setup_astro "$project" "$project/site/src/good.astro" edit
+    if [[ "$root_fixture" != - ]]; then
+        cp "$fixtures/astro/$root_fixture/package.json" "$project/"
+        printf '{}\n' >"$project/tooling.json"
+        astro_edit "$project" "$project/tooling.json"
+    fi
+    astro_edit "$project" "$project/site/src/good.astro"
+    CLAUDE_PROJECT_DIR="$project" "$astro_hook" stop <<<'{}' >/dev/null 2>&1 || got=$?
+    if [[ "$got" == "$want" ]]; then
+        printf 'PASS  astro stop: %s\n' "$label"
         pass=$((pass + 1))
     else
-        printf 'FAIL  astro stop after an edit in site/: exit %s, want 2\n' "$got"
+        printf 'FAIL  astro stop: %s: exit %s, want %s\n' "$label" "$got" "$want"
         fail=$((fail + 1))
     fi
+}
+
+# Stop's input has no file path: the edit hooks record the packages and Stop checks each one.
+if ready_astro; then
+    astro_stop_after_edits "runs check in the recorded subdirectory" - stop-fail 2
+    astro_stop_after_edits "checks the site after a package with no check script" stop-missing stop-fail 2
+    astro_stop_after_edits "checks the site after a package with no node_modules" stop-pass stop-fail 2
+    astro_stop_after_edits "warns when one package is skipped and the site passes" stop-missing stop-pass 1
 else
-    printf 'SKIP  astro stop in a subdirectory (pnpm or the fixture install unavailable)\n'
+    printf 'SKIP  astro stop with recorded packages (pnpm or the fixture install unavailable)\n'
+    skip=$((skip + 1))
+fi
+
+# The astro stack's CI link check, with the flags from its workflow. CI gets lychee from the
+# action the stack uses. links <label> <pass|fail> <href>: the site has pages at /about/ and
+# /blog/post/ only, and its home page links to href.
+links() {
+    local label="$1" want="$2" href="$3" site="$scratch/links-$2" got=pass args
+    mkdir -p "$site/dist/about" "$site/dist/blog/post"
+    printf '<a href="%s">link</a>\n' "$href" >"$site/dist/index.html"
+    printf '<a href="/">home</a>\n' >"$site/dist/about/index.html"
+    printf '<a href="/">home</a>\n' >"$site/dist/blog/post/index.html"
+    read -ra args <<<"${lychee_args//@SITE@/$site}"
+    (cd "$site" && lychee "${args[@]}") >/dev/null 2>&1 || got=fail
+    if [[ "$got" == "$want" ]]; then
+        printf 'PASS  astro link check: %s\n' "$label"
+        pass=$((pass + 1))
+    else
+        printf 'FAIL  astro link check: %s: %s, want %s\n' "$label" "$got" "$want"
+        fail=$((fail + 1))
+    fi
+}
+
+if command -v lychee >/dev/null 2>&1; then
+    lychee_args="$(sed -n -e 's/^ *args: //' -e 's/\${{ github.workspace }}/@SITE@/p' "$repo/stacks/astro/.github/workflows/ci.yml")"
+    lychee_args="${lychee_args//\'/}"
+    links "a directory route with an index page" pass /about/
+    links "a directory with only child pages" fail /blog/
+else
+    printf 'SKIP  astro link check (lychee not installed)\n'
     skip=$((skip + 1))
 fi
 

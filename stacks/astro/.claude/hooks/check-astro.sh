@@ -67,13 +67,13 @@ stop_dirs() {
 require_pnpm() {
     command -v pnpm >/dev/null 2>&1 && [[ -d node_modules ]] && return 0
     echo "check-astro: pnpm or node_modules missing in $PWD; run 'pnpm install'. Astro checks skipped." >&2
-    exit 1
+    return 1
 }
 
 require_check_script() {
     [[ -z "$(json_field .scripts.check "$(cat package.json)")" ]] || return 0
     echo "check-astro: no \"check\" script in $PWD/package.json; define \"check\" and \"build\" (see AGENTS.md). Astro checks skipped." >&2
-    exit 1
+    return 1
 }
 
 case "$mode" in
@@ -89,7 +89,7 @@ case "$mode" in
         package_dir="$(nearest_package_dir "$file")" || exit 0
         record_dir "$package_dir"
         cd "$package_dir"
-        require_pnpm
+        require_pnpm || exit 1
         pnpm exec prettier --write --log-level warn "$file" >&2 || true
         [[ "$lint" == 1 ]] || exit 0
         # --no-warn-ignored: an edit to a file the config ignores must not fail --max-warnings=0.
@@ -102,15 +102,21 @@ case "$mode" in
         # Don't loop: if Claude is already continuing because of this hook, let it stop.
         [[ "$(json_field .stop_hook_active)" == "true" ]] && exit 0
         mapfile -t dirs < <(stop_dirs)
+        skipped=0
         for dir in "${dirs[@]}"; do
             cd "$dir"
-            require_check_script
-            require_pnpm
+            # A package that can't be checked warns, and must not hide the ones after it.
+            if ! require_check_script || ! require_pnpm; then
+                skipped=1
+                continue
+            fi
             if ! out="$(pnpm --silent check 2>&1)"; then
                 printf 'pnpm check fails in %s; fix before finishing:\n%s\n' "$dir" "$out" >&2
                 exit 2
             fi
         done
+        # Keep the record when a package was skipped, so it is checked once it can be.
+        [[ "$skipped" == 0 ]] || exit 1
         rm -f "$dirs_file"
         ;;
     *)
