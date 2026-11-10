@@ -23,7 +23,7 @@ CI job `name:`s are required-check contexts: `ci-<stack>` in the stacks, `secret
 | `actionlint .github/workflows/*.yml stacks/*/.github/workflows/*.yml security/.github/workflows/*.yml` | Lints every workflow, including the templates that only run once copied into a project. CI pins v1.7.7. |
 | `bash tests/install-global.sh` | Runs the installer against a fake `$HOME`: clean, re-run, existing file with and without `--force`, stale symlink, worktree. Exits non-zero on any FAIL. |
 | `bash tests/agents-md.sh` | Every stack has `AGENTS.md`, its `CLAUDE.md` imports it with `@AGENTS.md`, no non-blank line is in both, `AGENTS.md` has an `### Analysis` block (at most three rows: count lines with `scc`, find duplication with `jscpd`, and the stack's dead-code tool, which the script names per stack), and no tracked file outside `docs/decisions.md` names the old singular file. |
-| `bash tests/hooks.sh` | Runs each `check-<stack>.sh` with fake hook JSON against good/bad fixtures, `guard-bash.sh` against blocked and allowed command lines in a scratch repo, and `no-commit-to-branch` against a real commit on main. PASS/FAIL per case; SKIP when that stack's linter, or `pre-commit`, isn't installed. Exits non-zero on any FAIL. |
+| `bash tests/hooks.sh` | Runs each `check-<stack>.sh` with fake hook JSON against good/bad fixtures, `guard-bash.sh` against blocked and allowed command lines in a scratch repo, and `no-commit-to-branch` against a real commit on main. PASS/FAIL per case; Also runs the astro stack's link check against a generated `dist/`. SKIP when that stack's linter, `pre-commit` or `lychee` isn't installed. Exits non-zero on any FAIL. |
 | `bash tests/protect.sh` | Runs `github/protect.sh` against a stub `gh`: check discovery, the JSON sent, create vs update, `--off`/`--on`, the plan-limit error, the python3 fallback. Exits non-zero on any FAIL. |
 
 ## Guarding main here
@@ -39,5 +39,7 @@ Every `check-<stack>.sh` takes a mode (`edit` | `stop`), reads the hook JSON on 
 - exit 2: lint failure, with the findings on stderr (blocks Claude)
 - exit 1: tool missing; warns without blocking
 - `stop` exits 0 when `stop_hook_active` is true, so a hook can't loop
+
+`check-astro.sh` then moves to the nearest `package.json` above the edited file, so a site in a subdirectory works.
 
 When adding a stack: write the hook to this contract, add good/bad fixtures and `expect` lines in `tests/hooks.sh`, and add a row to the README table.

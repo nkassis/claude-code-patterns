@@ -1,0 +1,18 @@
+# Install once per machine: `uv tool install pre-commit`; once per clone: `pre-commit install --hook-type pre-commit --hook-type pre-push`
+# Append security/.pre-commit-config.yaml's `repos:` entries below.
+repos:
+  # The same scripts CI runs, with the versions in pnpm-lock.yaml.
+  - repo: local
+    hooks:
+      - id: check
+        name: pnpm check
+        entry: pnpm check
+        language: system
+        pass_filenames: false
+        types_or: [astro, ts, tsx, javascript, jsx, markdown, mdx, json]
+      - id: build
+        name: pnpm build
+        entry: pnpm build
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

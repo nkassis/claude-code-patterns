@@ -88,6 +88,7 @@ for stack in "$repo"/stacks/*/; do
         rust) rows+=("Find dead code=cargo machete") ;;
         cpp) rows+=("Find dead code=cppcheck") ;;
         php) rows+=("Find dead code=phpstan.sweep.neon") ;;
+        astro) rows+=("Find dead code=knip") ;;
         shell) ;; # no dead-code tool: SC2034 already reports unused variables
         *) rows+=("Find dead code=") ;;
     esac

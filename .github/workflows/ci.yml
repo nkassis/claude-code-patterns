@@ -42,6 +42,13 @@ jobs:
           sys.exit(bad)
           '
 
+      # Puts lychee on PATH for the hook tests, at the version the astro stack's CI uses.
+      - name: Install lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --version
+          jobSummary: false
+
       - name: Hook tests
         run: |
           uv tool install pre-commit
