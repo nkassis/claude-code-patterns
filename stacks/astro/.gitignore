@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+.claude/check-astro.dirs
+
+# Secrets: never commit env files except the example.
+.env
+.env.*
+!.env.example
+*.local

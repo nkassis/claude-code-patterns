@@ -40,4 +40,6 @@ Every `check-<stack>.sh` takes a mode (`edit` | `stop`), reads the hook JSON on 
 - exit 1: tool missing; warns without blocking
 - `stop` exits 0 when `stop_hook_active` is true, so a hook can't loop
 
+`check-astro.sh` then moves to the nearest `package.json` above the edited file, so a site in a subdirectory works.
+
 When adding a stack: write the hook to this contract, add good/bad fixtures and `expect` lines in `tests/hooks.sh`, and add a row to the README table.

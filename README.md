@@ -74,12 +74,13 @@ Before a PR, spec or report leaves your hands, `/blind-review` has a fresh subag
 | `cpp` | clang-format, clang-tidy (needs `build/compile_commands.json`) | | format, tidy, build, ctest |
 | `react` | Prettier, ESLint | `pnpm typecheck` | `pnpm check`, build |
 | `php` | Pint, PHPStan (Larastan) | `phpstan analyse` | pint, phpstan, pest |
+| `astro` | Prettier, ESLint | `pnpm check` | `pnpm check`, build; CI also checks internal links |
 
 Formatters apply. Lint findings block Claude and are fed back to it. A missing tool warns and does not block.
 
 ## Covered
 
-**Code quality.** Format and lint on every edit, a project-wide check before Claude stops (python, rust, react, php), the same tools in pre-commit. `AGENTS.md` states what "done" means.
+**Code quality.** Format and lint on every edit, a project-wide check before Claude stops (python, rust, react, php, astro), the same tools in pre-commit. `AGENTS.md` states what "done" means.
 
 **CI.** One GitHub Actions workflow per stack. Actions pinned to release tags, Dependabot to keep the pins current.
 
