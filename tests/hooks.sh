@@ -56,6 +56,49 @@ verify_cpp() {
     clang-format --dry-run -Werror "$1" 2>&1
 }
 
+# Astro's linters come from one install, shared by every case through a node_modules symlink.
+astro_deps="$scratch/astro-deps"
+astro_install=""
+
+install_astro_deps() {
+    [[ -z "$astro_install" ]] || return 0
+    astro_install=unavailable
+    command -v pnpm >/dev/null 2>&1 || return 0
+    mkdir -p "$astro_deps"
+    cp "$fixtures/astro/project/package.json" "$astro_deps/"
+    if pnpm --dir "$astro_deps" install >/dev/null 2>&1; then
+        astro_install=ready
+    fi
+}
+
+ready_astro() {
+    [[ "$astro_install" == ready ]]
+}
+
+setup_astro() {
+    # The site is the project root, or site/ when the case puts its file there.
+    local site="$1"
+    [[ "$2" != "$1"/site/* ]] || site="$1/site"
+    install_astro_deps
+    cp "$fixtures/astro/project/.prettierrc" "$fixtures/astro/project/eslint.config.mjs" "$site/"
+    [[ -f "$site/package.json" ]] || cp "$fixtures/astro/project/package.json" "$site/"
+    if ready_astro; then
+        ln -s "$astro_deps/node_modules" "$site/node_modules"
+    fi
+}
+
+verify_astro() {
+    # The hook applied Prettier: the unformatted fixture must now match the formatted one.
+    [[ "$1" == */unformatted.astro ]] || return 0
+    cmp "$1" "$fixtures/astro/good.astro" 2>&1
+}
+
+# must_run <stack>: the stack declares ready_<stack> and it holds, so its tools are installed
+# and a hook exiting 1 is a failure, not a SKIP.
+must_run() {
+    declare -F "ready_$1" >/dev/null && "ready_$1"
+}
+
 # expect <stack> <mode> <fixture|-> <expected exit> [stop_hook_active] [dest dir in project]
 expect() {
     local stack="$1" mode="$2" fixture="$3" want="$4" active="${5:-false}" dest="${6:-}"
@@ -82,7 +125,7 @@ expect() {
     if [[ "$got" == "$want" ]]; then
         printf 'PASS  %s\n' "$label"
         pass=$((pass + 1))
-    elif [[ "$got" == 1 ]]; then
+    elif [[ "$got" == 1 ]] && ! must_run "$stack"; then
         printf 'SKIP  %s (%s)\n' "$label" "${err%%$'\n'*}"
         skip=$((skip + 1))
     else
@@ -91,7 +134,7 @@ expect() {
     fi
 }
 
-for stack in python shell rust cpp react php; do
+for stack in python shell rust cpp react php astro; do
     expect "$stack" edit other.txt 0
 done
 
@@ -133,6 +176,56 @@ expect php stop php/untyped-method.php 2 false app
 expect php edit php/bad.php 0 false tests
 expect php stop php/bad.php 2 false app
 expect php stop - 0 true
+
+expect astro edit astro/good.astro 0 false src
+expect astro edit astro/unformatted.astro 0 false src
+expect astro edit astro/bad.astro 2 false src
+# package.json in a subdirectory, none at the project root.
+expect astro edit astro/unformatted.astro 0 false site/src
+expect astro edit astro/bad.astro 2 false site/src
+expect astro stop astro/stop-pass/package.json 0
+expect astro stop astro/stop-fail/package.json 2
+expect astro stop astro/stop-missing/package.json 1
+expect astro stop - 0 true
+
+# Cases the exit code alone can't show, run directly on one project.
+astro_hook="$repo/stacks/astro/.claude/hooks/check-astro.sh"
+
+# A missing `check` script warns by name. Needs no pnpm: the script is looked for first.
+astro_missing="$scratch/astro-missing"
+mkdir -p "$astro_missing"
+cp "$fixtures/astro/stop-missing/package.json" "$astro_missing/"
+astro_err="$(CLAUDE_PROJECT_DIR="$astro_missing" "$astro_hook" stop <<<'{}' 2>&1 >/dev/null)" || true
+if [[ "$astro_err" == *'"check" script'* ]]; then
+    printf 'PASS  astro stop names the missing check script\n'
+    pass=$((pass + 1))
+else
+    printf 'FAIL  astro stop: no message naming the missing check script\n'
+    fail=$((fail + 1))
+fi
+
+# Stop's input has no file path: the edit hook records the subdirectory and Stop checks it there.
+if ready_astro; then
+    astro_nested="$scratch/astro-nested"
+    mkdir -p "$astro_nested/site/src"
+    cp "$fixtures/astro/stop-fail/package.json" "$astro_nested/site/"
+    cp "$fixtures/astro/good.astro" "$astro_nested/site/src/"
+    setup_astro "$astro_nested" "$astro_nested/site/src/good.astro" edit
+    astro_input="$(printf '{"tool_input":{"file_path":"%s"}}' "$astro_nested/site/src/good.astro")"
+    CLAUDE_PROJECT_DIR="$astro_nested" "$astro_hook" edit <<<"$astro_input" >/dev/null 2>&1 || true
+    got=0
+    CLAUDE_PROJECT_DIR="$astro_nested" "$astro_hook" stop <<<'{}' >/dev/null 2>&1 || got=$?
+    if [[ "$got" == 2 ]]; then
+        printf 'PASS  astro stop runs check in the subdirectory the edit hook recorded\n'
+        pass=$((pass + 1))
+    else
+        printf 'FAIL  astro stop after an edit in site/: exit %s, want 2\n' "$got"
+        fail=$((fail + 1))
+    fi
+else
+    printf 'SKIP  astro stop in a subdirectory (pnpm or the fixture install unavailable)\n'
+    skip=$((skip + 1))
+fi
 
 # security/.claude/hooks/guard-bash.sh: PreToolUse on Bash. A scratch repo on main with a
 # worktree on a feature branch; each case runs one command line from one of them.

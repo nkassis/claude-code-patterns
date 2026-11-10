@@ -1,0 +1,7 @@
+{
+    "name": "astro-stop-fail",
+    "private": true,
+    "scripts": {
+        "check": "node -e \"process.exit(1)\""
+    }
+}
