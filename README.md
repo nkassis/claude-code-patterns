@@ -10,7 +10,7 @@ Per-stack starters for Claude Code projects. Each one states a guardrail once in
 | --- | --- |
 | `stacks/<stack>/` | Starter files for one language |
 | `security/` | Secret scanning, read-deny rules, env hygiene |
-| `github/` | Opt-in branch protection ruleset, see [github/README.md](github/README.md) |
+| `github/` | Opt-in branch protection ruleset, see [github/README.md](github/README.md); the workflow ref check CI runs here |
 | `CLAUDE-global.md` | Personal defaults, goes in `~/.claude/CLAUDE.md` |
 | `skills/` | Claude Code skills, go in `~/.claude/skills/` |
 | `rules/` | Path-scoped Claude Code rules, go in a project's `.claude/rules/` |
@@ -19,7 +19,7 @@ How it works: [docs/how-it-works.md](docs/how-it-works.md)
 
 ## Use
 
-Prerequisites: `uv`, `jq` or `python3`, `trufflehog`, and the stack's own tools (see the table below). Commands run from a clone of this repo.
+Prerequisites: `uv`, `jq` or `python3`, `trufflehog`, `gh` (logged in), and the stack's own tools (see the table below). Commands run from a clone of this repo.
 
 Analysis tools, named in each stack's `AGENTS.md` under Analysis and never run by a hook or CI, need these on the machine (per-project ones are pinned by the stack's Setup):
 
@@ -58,6 +58,13 @@ pre-commit run --all-files
 
 Copy `security/.claude/hooks/guard-bash.sh` into the project's `.claude/hooks/`. Merge `security/.claude/settings.json` and `security/.pre-commit-config.yaml` into the project's copies, and append `security/gitignore-env.txt` to `.gitignore`. In an existing project, also merge anything `--update=none` skipped, such as `AGENTS.md`, `CLAUDE.md` and `.gitignore`. Two stacks in one repo merge the same way; hook scripts have distinct names and coexist.
 
+Lock the project's GitHub Actions and commit the lockfile. The `actions-lock` CI job and zizmor fail until it exists. Details, and the rule for reusable workflows: [security/README.md](security/README.md#locking-github-actions).
+
+```sh
+gh extension install github/gh-actions-lock --pin v0.4.1   # once per machine
+gh actions-lock && git add .github/workflows/ && git commit -m "ci: lock GitHub Actions dependencies"
+```
+
 Fill in the `{{placeholders}}` in `AGENTS.md` and `CLAUDE.md`. Record any deviation from `CLAUDE-global.md`'s defaults in `docs/decisions.md`.
 
 For a decision log, copy `rules/decision-log.md` into the project's `.claude/rules/`. At a real fork it has agents run `/decide`, which asks you and writes the entry.
@@ -81,7 +88,7 @@ Formatters apply. Lint findings block Claude and are fed back to it. A missing t
 
 **Code quality.** Format and lint on every edit, a project-wide check before Claude stops (python, rust, react, php), the same tools in pre-commit. `AGENTS.md` states what "done" means.
 
-**CI.** One GitHub Actions workflow per stack. Actions pinned to release tags, Dependabot to keep the pins current.
+**CI.** One GitHub Actions workflow per stack. Actions carry exact release tags, and each project locks them to commits in `.github/workflows/actions.lock`, checked on every PR. Reusable workflows from other repos are pinned to a full SHA. zizmor audits the workflows, and Dependabot keeps the tags and the lockfile current, with a 7 day cooldown.
 
 **Security.** TruffleHog on every push and PR, plus `detect-private-key` and large-file checks in pre-commit. Claude is denied reads of `.env` files (not `.env.example`), keys, `~/.ssh` and `~/.aws`, and every project gets a `.env.example` and a gitignore block. Main and master are guarded locally:
 - A PreToolUse hook blocks Claude from committing on them, pushing to them, force pushing or deleting them.
@@ -91,4 +98,6 @@ These layers catch mistakes. They don't stop someone determined: aliases, script
 
 ## Developing this repo
 
-`AGENTS.md` has the hook contract; `tests/hooks.sh` runs every hook against good and bad fixtures, `tests/install-global.sh` the installer against a fake `$HOME`, `tests/agents-md.sh` checks the AGENTS.md / CLAUDE.md split, `tests/protect.sh` the ruleset script against a stub `gh`.
+`AGENTS.md` has the hook contract; `tests/hooks.sh` runs every hook against good and bad fixtures, `tests/install-global.sh` the installer against a fake `$HOME`, `tests/agents-md.sh` checks the AGENTS.md / CLAUDE.md split, `tests/protect.sh` the ruleset script against a stub `gh`, `tests/check-workflow-refs.sh` the workflow ref check against good and bad fixtures.
+
+This repo's own workflows are locked in `.github/workflows/actions.lock`. After changing a `uses:` here, run `gh actions-lock` and commit the result. `github/check-workflow-refs.sh <workflow.yml>...` fails on a reusable workflow call not pinned to a full SHA, and on a floating tag or branch. CI runs it over the root and template workflows, since zizmor accepts tags in the templates.
