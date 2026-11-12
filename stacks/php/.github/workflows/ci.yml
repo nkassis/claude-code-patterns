@@ -13,8 +13,10 @@ jobs:
     name: ci-php
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@v4.4.0
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@2.40.0  # setup-php's release tags have no "v"
         with:
           # Keep in step with the "php" constraint in composer.json.
           php-version: '8.4'

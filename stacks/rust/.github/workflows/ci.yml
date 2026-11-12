@@ -13,7 +13,9 @@ jobs:
     name: ci-rust
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
+        with:
+          persist-credentials: false
       # rustup is preinstalled on ubuntu-latest; rust-toolchain.toml (if present) picks the version.
       - name: Toolchain
         run: rustup component add rustfmt clippy
