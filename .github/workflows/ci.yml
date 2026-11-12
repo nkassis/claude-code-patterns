@@ -16,8 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v4.4.0
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6.8.0
 
       - name: shellcheck
         run: shellcheck install-global.sh github/*.sh stacks/*/.claude/hooks/*.sh security/.claude/hooks/*.sh tests/*.sh
@@ -26,6 +28,21 @@ jobs:
         run: |
           go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.7
           "$(go env GOPATH)/bin/actionlint" .github/workflows/*.yml stacks/*/.github/workflows/*.yml security/.github/workflows/*.yml
+
+      # This repo's workflows are locked in actions.lock, so the default policy applies: locked
+      # steps pass, a reusable workflow call must be hash-pinned. The templates are locked only
+      # once copied into a project, so they run with ref-pin (.github/zizmor-templates.yml).
+      - name: zizmor
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          uvx zizmor@1.32.0 --no-progress .github/workflows/*.yml .github/dependabot.yml .pre-commit-config.yaml
+          uvx zizmor@1.32.0 --no-progress --config .github/zizmor-templates.yml \
+            stacks/*/.github/workflows/*.yml security/.github/workflows/*.yml \
+            security/.github/dependabot.yml security/.pre-commit-config.yaml stacks/*/.pre-commit-config.yaml
+
+      - name: Workflow refs (reusable workflows hash-pinned, no floating tags)
+        run: github/check-workflow-refs.sh .github/workflows/*.yml stacks/*/.github/workflows/*.yml security/.github/workflows/*.yml
 
       - name: Every JSON and YAML file parses
         run: |
@@ -52,6 +69,9 @@ jobs:
 
       - name: protect.sh tests
         run: bash tests/protect.sh
+
+      - name: check-workflow-refs.sh tests
+        run: bash tests/check-workflow-refs.sh
 
       - name: AGENTS.md / CLAUDE.md split
         run: bash tests/agents-md.sh

@@ -1,0 +1,25 @@
+# This repo's own actions, and the tags in the template workflows it ships.
+version: 2
+updates:
+  # .github/workflows/: Dependabot bumps the tag and regenerates actions.lock in the same PR.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+
+  # Template workflows. Dependabot only finds workflows under the root .github/workflows/
+  # on its own; a directory other than / makes it read every .yml in that directory.
+  # They are not in this repo's lockfile, so only the tags change.
+  - package-ecosystem: github-actions
+    directories:
+      - /stacks/*/.github/workflows
+      - /security/.github/workflows
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      templates:
+        patterns: ["*"]
