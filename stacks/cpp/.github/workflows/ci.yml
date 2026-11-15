@@ -13,7 +13,9 @@ jobs:
     name: ci-cpp
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
+        with:
+          persist-credentials: false
       - name: Toolchain
         run: sudo apt-get update && sudo apt-get install -y ninja-build clang clang-format clang-tidy
       - name: Format

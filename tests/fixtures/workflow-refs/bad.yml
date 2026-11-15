@@ -1,0 +1,18 @@
+# One finding per uses line below, in order; tests/check-workflow-refs.sh expects each line number.
+# Floating refs carry a trailing comment so a repo-wide `grep "@v[0-9]+$"` does not match this file.
+on: push
+jobs:
+  steps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4  # floating major
+      - uses: actions/setup-node@v4.4  # partial tag
+      - uses: owner/action@main  # branch
+      - uses: owner/action@master  # branch
+      - uses: owner/action
+  tag:
+    uses: owner/repo/.github/workflows/reusable.yml@v1.2.3
+  short-sha:
+    uses: owner/repo/.github/workflows/reusable.yml@11d5960 # v1.2.3
+  no-comment:
+    uses: owner/repo/.github/workflows/reusable.yml@11d5960a326750d5838078e36cf38b85af677262

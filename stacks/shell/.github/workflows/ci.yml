@@ -13,7 +13,9 @@ jobs:
     name: ci-shell
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
+        with:
+          persist-credentials: false
       # shellcheck is preinstalled on ubuntu-latest.
       - name: shellcheck tracked scripts (by extension or shebang)
         run: |

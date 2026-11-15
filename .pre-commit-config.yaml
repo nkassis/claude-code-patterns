@@ -1,4 +1,4 @@
-# This repo's own hooks: the branch guard from security/.pre-commit-config.yaml.
+# This repo's own hooks: the branch guard from security/.pre-commit-config.yaml, and zizmor.
 # Once per clone: `pre-commit install`
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -6,3 +6,16 @@ repos:
     hooks:
       - id: no-commit-to-branch
         args: [--branch, main, --branch, master]
+
+  # GitHub Actions security audit. v1.32.0 is the first that reads actions.lock.
+  # This repo's workflows are locked, so the default policy applies to them. The templates
+  # are locked only once copied into a project, so they get ref-pin (same split as CI).
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: v1.32.0
+    hooks:
+      - id: zizmor
+        exclude: ^(stacks|security)/
+      - id: zizmor
+        name: zizmor (templates)
+        files: ^(stacks/[^/]+|security)/(\.github/(workflows/[^/]+|dependabot)\.ya?ml|\.pre-commit-config\.yaml)$
+        args: [--no-progress, --config, .github/zizmor-templates.yml]

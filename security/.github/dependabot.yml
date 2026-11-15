@@ -1,7 +1,11 @@
 # Keeps pinned GitHub Action versions current (including the TruffleHog pin).
+# Each bump also regenerates .github/workflows/actions.lock in the same PR.
 version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    # A release has a week to be found bad, and pulled, before it reaches this repo.
+    cooldown:
+      default-days: 7

@@ -1,0 +1,10 @@
+# zizmor config for the template workflows under stacks/ and security/.
+# They are locked in the project they are copied into, not here, so this repo's
+# actions.lock does not cover them and exact tags are the most they can carry.
+# github/check-workflow-refs.sh still requires a full SHA on reusable workflow calls.
+# This repo's own workflows use zizmor's default policy: locked steps pass, anything else is hash-pinned.
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        "*": ref-pin
